@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:#06080D;color:#E8EBF2;font-family:'Space Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  ::selection{background:rgba(47,107,255,0.35);color:#fff}
+  [data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+  [data-reveal][data-shown]{opacity:1;transform:none}
+  @keyframes flow{to{stroke-dashoffset:-11}}
+  @keyframes blink{0%,48%{opacity:1}49%,100%{opacity:0}}
+  @keyframes gridpan{from{background-position:0 0}to{background-position:42px 42px}}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(61,220,151,0.5)}50%{box-shadow:0 0 0 5px rgba(61,220,151,0)}}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+</style>
+</helmet>
+
+<div aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(900px 620px at 10% -8%, rgba(47,107,255,0.20), transparent 60%), radial-gradient(820px 600px at 102% -2%, rgba(91,108,255,0.12), transparent 55%), #06080D"></div>
+<div aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.55;background-image:linear-gradient(rgba(120,140,200,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(120,140,200,0.06) 1px,transparent 1px);background-size:42px 42px;animation:gridpan 32s linear infinite;-webkit-mask-image:radial-gradient(circle at 50% 26%, black, transparent 78%);mask-image:radial-gradient(circle at 50% 26%, black, transparent 78%)"></div>
+
+<div style="position:relative;z-index:1">
+
+  <nav style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:rgba(6,8,13,0.62);border-bottom:1px solid rgba(255,255,255,0.07)">
+    <div style="max-width:1180px;margin:0 auto;padding:13px 28px;display:flex;align-items:center;gap:22px">
+      <a href="#top" style="display:flex;align-items:center;gap:10px;text-decoration:none;flex:none">
+        <span style="width:11px;height:11px;border-radius:3px;background:#2F6BFF;box-shadow:0 0 14px #2F6BFF"></span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:14px;color:#E8EBF2;letter-spacing:0.01em">jerry.mejia</span>
+      </a>
+      <div style="flex:1"></div>
+      <div style="display:flex;align-items:center;gap:24px">
+        <a href="#arquitectura" style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#8a96b4;text-decoration:none;transition:color .2s" style-hover="color:#E8EBF2">{{ ui.navA }}</a>
+        <a href="#stack" style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#8a96b4;text-decoration:none;transition:color .2s" style-hover="color:#E8EBF2">{{ ui.navS }}</a>
+        <a href="#sectores" style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#8a96b4;text-decoration:none;transition:color .2s" style-hover="color:#E8EBF2">{{ ui.navSec }}</a>
+        <a href="#proyectos" style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#8a96b4;text-decoration:none;transition:color .2s" style-hover="color:#E8EBF2">{{ ui.navP }}</a>
+        <a href="Blog.dc.html" style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#9fb6ff;text-decoration:none;transition:color .2s" style-hover="color:#E8EBF2">{{ ui.navBlog }}</a>
+      </div>
+      <div style="width:1px;height:18px;background:rgba(255,255,255,0.1)"></div>
+      <div style="display:flex;align-items:center;gap:7px">
+        <span style="width:7px;height:7px;border-radius:50%;background:#3DDC97;animation:pulse 2.2s infinite"></span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9fb6a8">{{ ui.status }}</span>
+      </div>
+      <button onClick="{{ toggleLang }}" style="font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:700;color:#9fb0d6;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:6px 10px;cursor:pointer;transition:all .2s" style-hover="border-color:#2F6BFF;color:#fff">{{ ui.langBtn }}</button>
+    </div>
+  </nav>
+
+  <main id="top" style="max-width:1180px;margin:0 auto;padding:0 28px">
+
+    <!-- HERO -->
+    <section style="display:grid;grid-template-columns:1.08fr 0.92fr;gap:56px;align-items:center;padding:78px 0 64px;min-height:88vh">
+      <div data-reveal>
+        <div style="display:inline-flex;align-items:center;gap:9px;padding:6px 13px;border-radius:100px;border:1px solid rgba(47,107,255,0.32);background:rgba(47,107,255,0.08);margin-bottom:26px">
+          <span style="width:6px;height:6px;border-radius:50%;background:#5B8CFF;box-shadow:0 0 10px #5B8CFF"></span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#9fb6ff;letter-spacing:0.02em">{{ ui.heroKicker }}</span>
+        </div>
+        <h1 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(40px,5.6vw,72px);line-height:1.02;letter-spacing:-0.01em;margin:0 0 24px;color:#F3F5FA">{{ ui.heroTitle }}</h1>
+        <p style="font-size:clamp(15px,1.4vw,18px);line-height:1.66;color:#9aa6c2;max-width:520px;margin:0 0 34px">{{ ui.heroSub }}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:13px;margin-bottom:42px">
+          <a href="#contacto" style="display:inline-flex;align-items:center;gap:9px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14.5px;color:#fff;background:#2F6BFF;border:1px solid #2F6BFF;border-radius:10px;padding:13px 22px;text-decoration:none;box-shadow:0 8px 28px rgba(47,107,255,0.4);transition:all .2s" style-hover="background:#447bff;box-shadow:0 10px 36px rgba(47,107,255,0.55)">{{ ui.ctaTalk }} <span style="font-family:'JetBrains Mono',monospace">→</span></a>
+          <a href="#proyectos" style="display:inline-flex;align-items:center;gap:9px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14.5px;color:#cdd6ee;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:13px 22px;text-decoration:none;transition:all .2s" style-hover="border-color:rgba(255,255,255,0.32);color:#fff">{{ ui.ctaWork }}</a>
+        </div>
+        <div style="display:flex;gap:34px;flex-wrap:wrap">
+          <div>
+            <div style="font-family:'Instrument Serif',serif;font-size:34px;color:#5B8CFF;line-height:1">06</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#7e8aa8;margin-top:4px">{{ ui.stat1 }}</div>
+          </div>
+          <div style="width:1px;background:rgba(255,255,255,0.1)"></div>
+          <div>
+            <div style="font-family:'Instrument Serif',serif;font-size:34px;color:#5B8CFF;line-height:1">AWS</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#7e8aa8;margin-top:4px">{{ ui.stat2 }}</div>
+          </div>
+          <div style="width:1px;background:rgba(255,255,255,0.1)"></div>
+          <div>
+            <div style="font-family:'Instrument Serif',serif;font-size:34px;color:#5B8CFF;line-height:1">LATAM</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#7e8aa8;margin-top:4px">{{ ui.stat3 }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TERMINAL -->
+      <div data-reveal style="transition-delay:.12s">
+        <div style="border-radius:14px;border:1px solid rgba(255,255,255,0.1);background:linear-gradient(180deg,rgba(16,20,32,0.92),rgba(9,12,20,0.92));box-shadow:0 30px 80px rgba(0,0,0,0.55),0 0 0 1px rgba(47,107,255,0.06);overflow:hidden;backdrop-filter:blur(8px)">
+          <div style="display:flex;align-items:center;gap:8px;padding:12px 15px;border-bottom:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02)">
+            <span style="width:11px;height:11px;border-radius:50%;background:#ff5f57"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:#febc2e"></span>
+            <span style="width:11px;height:11px;border-radius:50%;background:#28c840"></span>
+            <span style="flex:1"></span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5d6883">~/jerry — zsh</span>
+          </div>
+          <div style="padding:20px 20px 22px;min-height:262px">
+            <pre id="term-out" style="margin:0;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.75;color:#8ea0c6;white-space:pre-wrap;word-break:break-word"></pre><span style="display:inline-block;width:8px;height:15px;background:#5B8CFF;vertical-align:-2px;animation:blink 1.05s steps(1) infinite;box-shadow:0 0 8px #5B8CFF"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ARQUITECTURA -->
+    <section id="arquitectura" style="padding:72px 0 30px">
+      <div data-reveal style="margin-bottom:34px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5B8CFF;letter-spacing:0.08em;margin-bottom:14px">01 — {{ ui.archTag }}</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(28px,4vw,46px);line-height:1.05;margin:0 0 14px;color:#F3F5FA">{{ ui.archTitle }}</h2>
+        <p style="font-size:16px;line-height:1.6;color:#9aa6c2;max-width:600px;margin:0">{{ ui.archLead }}</p>
+      </div>
+
+      <div data-reveal style="display:grid;grid-template-columns:1.45fr 1fr;gap:26px;align-items:stretch">
+        <div style="position:relative;border-radius:16px;border:1px solid rgba(255,255,255,0.09);background:rgba(12,16,26,0.5);overflow:hidden;min-height:400px;aspect-ratio:16/11;backdrop-filter:blur(6px)">
+          <div style="position:absolute;left:8%;top:4%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:9px;color:#5d6883;letter-spacing:0.1em">client</div>
+          <div style="position:absolute;left:32%;top:4%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:9px;color:#5d6883;letter-spacing:0.1em">edge</div>
+          <div style="position:absolute;left:57%;top:4%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:9px;color:#5d6883;letter-spacing:0.1em">services</div>
+          <div style="position:absolute;left:86%;top:4%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:9px;color:#5d6883;letter-spacing:0.1em">state</div>
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none">
+            <sc-for list="{{ lines }}" as="line" hint-placeholder-count="11">
+              <line x1="{{ line.x1 }}" y1="{{ line.y1 }}" x2="{{ line.x2 }}" y2="{{ line.y2 }}" stroke="{{ line.stroke }}" stroke-width="{{ line.w }}" stroke-dasharray="3 3.5" vector-effect="non-scaling-stroke" style="animation:flow 1.1s linear infinite"></line>
+            </sc-for>
+          </svg>
+          <sc-for list="{{ nodes }}" as="node" hint-placeholder-count="9">
+            <div onMouseEnter="{{ node.click }}" onClick="{{ node.click }}" style="position:absolute;left:{{ node.x }}%;top:{{ node.y }}%;transform:translate(-50%,-50%);cursor:pointer;z-index:2">
+              <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:11px;border:1px solid {{ node.bd }};background:{{ node.bg }};box-shadow:{{ node.gl }};backdrop-filter:blur(6px);transition:border-color .25s,background .25s,box-shadow .25s">
+                <span style="width:7px;height:7px;border-radius:50%;background:{{ node.dot }};box-shadow:0 0 8px {{ node.dot }};flex:none"></span>
+                <span style="display:flex;flex-direction:column;line-height:1.15">
+                  <span style="font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:600;color:#E8EBF2;white-space:nowrap">{{ node.l }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#808eb0;white-space:nowrap">{{ node.s }}</span>
+                </span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="border-radius:16px;border:1px solid rgba(47,107,255,0.22);background:linear-gradient(180deg,rgba(47,107,255,0.07),rgba(12,16,26,0.4));padding:26px;display:flex;flex-direction:column;backdrop-filter:blur(6px)">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5B8CFF;letter-spacing:0.06em;margin-bottom:auto">{{ ui.archHint }}</div>
+          <div style="margin-top:30px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+              <span style="width:9px;height:9px;border-radius:50%;background:#5B8CFF;box-shadow:0 0 10px #5B8CFF"></span>
+              <h3 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:30px;margin:0;color:#F3F5FA">{{ activeDetail.l }}</h3>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#7e8aa8;margin-bottom:16px">{{ activeDetail.s }}</div>
+            <p style="font-size:15px;line-height:1.62;color:#b3bdd6;margin:0">{{ activeDetail.d }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAPABILITIES -->
+    <section style="padding:62px 0 30px">
+      <div data-reveal style="margin-bottom:30px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5B8CFF;letter-spacing:0.08em;margin-bottom:14px">02 — {{ ui.capTag }}</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(28px,4vw,46px);line-height:1.05;margin:0;color:#F3F5FA">{{ ui.capTitle }}</h2>
+      </div>
+      <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
+        <sc-for list="{{ caps }}" as="c" hint-placeholder-count="7">
+          <div style="border-radius:14px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.025);padding:24px;transition:border-color .25s,transform .25s,background .25s" style-hover="border-color:rgba(47,107,255,0.45);transform:translateY(-4px);background:rgba(47,107,255,0.05)">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#5B8CFF;margin-bottom:16px">{{ c.n }}</div>
+            <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;margin:0 0 9px;color:#EaEdF4">{{ c.t }}</h3>
+            <p style="font-size:14px;line-height:1.58;color:#919dba;margin:0">{{ c.d }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- STACK -->
+    <section id="stack" style="padding:62px 0 30px">
+      <div data-reveal style="margin-bottom:32px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5B8CFF;letter-spacing:0.08em;margin-bottom:14px">03 — {{ ui.stackTag }}</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(28px,4vw,46px);line-height:1.05;margin:0;color:#F3F5FA">{{ ui.stackTitle }}</h2>
+      </div>
+      <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:20px">
+        <sc-for list="{{ stackGroups }}" as="g" hint-placeholder-count="5">
+          <div style="border-left:1px solid rgba(255,255,255,0.1);padding-left:18px">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6f7b9a;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:14px">{{ g.label }}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="4">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#c6cfe6;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:6px 11px;transition:all .2s" style-hover="border-color:#2F6BFF;color:#fff;background:rgba(47,107,255,0.12)">{{ it }}</span>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- SECTORES -->
+    <section id="sectores" style="padding:62px 0 30px">
+      <div data-reveal style="margin-bottom:30px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5B8CFF;letter-spacing:0.08em;margin-bottom:14px">04 — {{ ui.sectorsTag }}</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(28px,4vw,46px);line-height:1.05;margin:0 0 12px;color:#F3F5FA">{{ ui.sectorsTitle }}</h2>
+        <p style="font-size:16px;line-height:1.6;color:#9aa6c2;max-width:560px;margin:0">{{ ui.sectorsLead }}</p>
+      </div>
+      <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:14px">
+        <sc-for list="{{ sectors }}" as="s" hint-placeholder-count="6">
+          <div style="border-radius:13px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.025);padding:22px;display:flex;gap:14px;align-items:flex-start;transition:border-color .25s,background .25s" style-hover="border-color:rgba(47,107,255,0.4);background:rgba(47,107,255,0.045)">
+            <span style="width:10px;height:10px;border-radius:3px;background:#2F6BFF;box-shadow:0 0 10px rgba(47,107,255,0.6);margin-top:5px;flex:none"></span>
+            <div>
+              <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16.5px;margin:0 0 6px;color:#EaEdF4">{{ s.t }}</h3>
+              <p style="font-size:13.5px;line-height:1.55;color:#919dba;margin:0">{{ s.d }}</p>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- PROYECTOS -->
+    <section id="proyectos" style="padding:62px 0 30px">
+      <div data-reveal style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px;margin-bottom:30px">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5B8CFF;letter-spacing:0.08em;margin-bottom:14px">05 — {{ ui.projTag }}</div>
+          <h2 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(28px,4vw,46px);line-height:1.05;margin:0 0 10px;color:#F3F5FA">{{ ui.projTitle }}</h2>
+          <p style="font-size:16px;line-height:1.6;color:#9aa6c2;margin:0">{{ ui.projLead }}</p>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ filters }}" as="f" hint-placeholder-count="4">
+            <button onClick="{{ f.click }}" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:{{ f.color }};background:{{ f.bg }};border:1px solid {{ f.bd }};border-radius:8px;padding:7px 13px;cursor:pointer;transition:all .2s">{{ f.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px">
+        <sc-for list="{{ projects }}" as="p" hint-placeholder-count="5">
+          <div style="border-radius:15px;border:1px solid rgba(255,255,255,0.09);background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.012));padding:26px;display:flex;flex-direction:column;gap:12px;transition:border-color .25s,transform .25s" style-hover="border-color:rgba(47,107,255,0.5);transform:translateY(-4px)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+              <h3 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:25px;margin:0;color:#F3F5FA">{{ p.name }}</h3>
+              <span style="width:8px;height:8px;border-radius:50%;background:#3DDC97;box-shadow:0 0 8px #3DDC97;margin-top:8px;flex:none"></span>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#5B8CFF">{{ p.kind }}</div>
+            <p style="font-size:14px;line-height:1.58;color:#9aa6c2;margin:0;flex:1">{{ p.d }}</p>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">
+              <sc-for list="{{ p.stack }}" as="t" hint-placeholder-count="3">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#8a96b4;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:6px;padding:4px 8px">{{ t }}</span>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- METODOLOGIA IA -->
+    <section style="padding:62px 0 30px">
+      <div data-reveal style="border-radius:18px;border:1px solid rgba(47,107,255,0.25);background:radial-gradient(700px 300px at 0% 0%, rgba(47,107,255,0.12), transparent 60%), rgba(12,16,26,0.5);padding:clamp(28px,4vw,46px);position:relative;overflow:hidden;backdrop-filter:blur(6px)">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5B8CFF;letter-spacing:0.08em;margin-bottom:16px">06 — {{ ui.methTag }}</div>
+        <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:38px;align-items:center">
+          <div>
+            <h2 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(26px,3.4vw,40px);line-height:1.08;margin:0 0 18px;color:#F3F5FA">{{ ui.methTitle }}</h2>
+            <p style="font-size:15.5px;line-height:1.66;color:#a7b1cc;margin:0 0 24px">{{ ui.methBody }}</p>
+            <div style="display:flex;flex-wrap:wrap;gap:9px">
+              <sc-for list="{{ methods }}" as="m" hint-placeholder-count="4">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#cdd6ee;background:rgba(47,107,255,0.1);border:1px solid rgba(47,107,255,0.32);border-radius:8px;padding:7px 12px">{{ m }}</span>
+              </sc-for>
+            </div>
+          </div>
+          <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.09);background:rgba(6,8,13,0.6);padding:20px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.85;color:#8ea0c6">
+            <div><span style="color:#5B8CFF">$</span> claude --role architect</div>
+            <div style="color:#5d6883">{{ ui.methC1 }}</div>
+            <div><span style="color:#3DDC97">✓</span> {{ ui.methC2 }}</div>
+            <div><span style="color:#3DDC97">✓</span> {{ ui.methC3 }}</div>
+            <div style="color:#cfd8ee">{{ ui.methC4 }} <span style="display:inline-block;width:7px;height:13px;background:#5B8CFF;vertical-align:-1px;animation:blink 1.05s steps(1) infinite"></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CERT + CONTACTO -->
+    <section id="contacto" style="padding:62px 0 40px">
+      <div data-reveal style="display:grid;grid-template-columns:0.8fr 1.2fr;gap:24px;align-items:stretch">
+        <div style="border-radius:16px;border:1px solid rgba(255,255,255,0.09);background:rgba(255,255,255,0.025);padding:30px;display:flex;flex-direction:column;gap:18px;justify-content:center">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5B8CFF;letter-spacing:0.08em">{{ ui.certTag }}</div>
+          <div style="display:flex;align-items:center;gap:16px">
+            <div style="width:74px;height:74px;border-radius:14px;background:linear-gradient(145deg,#2F6BFF,#1b3fa8);display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none;box-shadow:0 10px 30px rgba(47,107,255,0.4)">
+              <span style="font-family:'Instrument Serif',serif;font-size:24px;color:#fff;line-height:1">AWS</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:#cdd9ff;letter-spacing:0.1em;margin-top:2px">CERTIFIED</span>
+            </div>
+            <div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:17px;color:#EaEdF4;line-height:1.25">AWS Certified<br>Solutions Architect</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#7e8aa8;margin-top:7px">Amazon Web Services</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-radius:16px;border:1px solid rgba(47,107,255,0.28);background:radial-gradient(600px 300px at 100% 0%, rgba(47,107,255,0.14), transparent 60%), rgba(12,16,26,0.5);padding:38px;display:flex;flex-direction:column;justify-content:center;backdrop-filter:blur(6px)">
+          <h2 style="font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(28px,3.6vw,42px);line-height:1.05;margin:0 0 14px;color:#F3F5FA">{{ ui.contactTitle }}</h2>
+          <p style="font-size:15.5px;line-height:1.62;color:#a7b1cc;max-width:480px;margin:0 0 28px">{{ ui.contactLead }}</p>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+            <a href="mailto:iscomejia15@outlook.com" style="display:inline-flex;align-items:center;gap:9px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14.5px;color:#fff;background:#2F6BFF;border-radius:10px;padding:13px 22px;text-decoration:none;box-shadow:0 8px 28px rgba(47,107,255,0.4);transition:all .2s" style-hover="background:#447bff">iscomejia15@outlook.com</a>
+            <a href="https://github.com/atlasfoo" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#cdd6ee;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:13px 16px;text-decoration:none;transition:all .2s" style-hover="border-color:rgba(255,255,255,0.34);color:#fff">github/atlasfoo</a>
+            <a href="https://linkedin.com/in/jerrymejia15" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#cdd6ee;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:13px 16px;text-decoration:none;transition:all .2s" style-hover="border-color:rgba(255,255,255,0.34);color:#fff">in/jerrymejia15</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer style="padding:30px 0 56px;border-top:1px solid rgba(255,255,255,0.07);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#5d6883">Jerry Mejía — {{ ui.heroKicker }}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#5d6883">{{ ui.footer }}</span>
+    </footer>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { lang: 'es', active: 'tarjetas', filter: 'all' };
+  termTimers = [];
+
+  nodes = [
+    { id:'web',     x:8,  y:24, dot:'#5B8CFF', es:{l:'Web',s:'Next.js · React',d:'Aplicaciones web rápidas y accesibles, renderizadas en el borde para sentirse instantáneas.'}, en:{l:'Web',s:'Next.js · React',d:'Fast, accessible web apps rendered at the edge so they feel instant.'} },
+    { id:'mobile',  x:8,  y:72, dot:'#5B8CFF', es:{l:'Mobile',s:'React Native',d:'Una sola base de código que llega a iOS y Android sin duplicar el esfuerzo.'}, en:{l:'Mobile',s:'React Native',d:'A single codebase shipping to iOS and Android without duplicating effort.'} },
+    { id:'gw',      x:32, y:48, dot:'#2F6BFF', es:{l:'API Gateway',s:'Auth · Rate limit',d:'Punto de entrada único: autenticación, límites de tráfico y enrutamiento a cada servicio.'}, en:{l:'API Gateway',s:'Auth · Rate limit',d:'A single entry point: authentication, throttling and routing to each service.'} },
+    { id:'pagos',   x:57, y:18, dot:'#6B8BFF', es:{l:'Pagos',s:'.NET · FastAPI',d:'Aceptación de pagos con conciliación y reintentos idempotentes: cobrar bien, siempre.'}, en:{l:'Payments',s:'.NET · FastAPI',d:'Payment acceptance with reconciliation and idempotent retries: charge right, every time.'} },
+    { id:'tarjetas',x:57, y:48, dot:'#2F6BFF', es:{l:'Tarjetas',s:'Emisión · Control',d:'Core de emisión y control de medios de pago operando a escala regional.'}, en:{l:'Cards',s:'Issuing · Control',d:'A card issuing and control core operating at regional scale.'} },
+    { id:'openb',   x:57, y:78, dot:'#6B8BFF', es:{l:'Open Banking',s:'Integraciones',d:'Integraciones de terceros con plataformas bancarias, bajo estándar y con seguridad.'}, en:{l:'Open Banking',s:'Integrations',d:'Third-party integrations with banking platforms — by the standard, and secure.'} },
+    { id:'pg',      x:86, y:22, dot:'#7AA0FF', es:{l:'PostgreSQL',s:'Datos',d:'Persistencia transaccional con réplicas de lectura para escalar sin perder consistencia.'}, en:{l:'PostgreSQL',s:'Data',d:'Transactional persistence with read replicas to scale without losing consistency.'} },
+    { id:'bus',     x:86, y:50, dot:'#7AA0FF', es:{l:'Event Bus',s:'Async',d:'Comunicación asíncrona entre servicios: desacoplada, resiliente y lista para fallar bien.'}, en:{l:'Event Bus',s:'Async',d:'Async communication between services: decoupled, resilient and ready to fail gracefully.'} },
+    { id:'obs',     x:86, y:80, dot:'#9BB6FF', es:{l:'Observabilidad',s:'Trazas · Métricas',d:'Visibilidad de punta a punta: logs, métricas y trazas para saber qué pasa antes que el usuario.'}, en:{l:'Observability',s:'Traces · Metrics',d:'End-to-end visibility: logs, metrics and traces — you know before the user does.'} },
+  ];
+  conns = [['web','gw'],['mobile','gw'],['gw','pagos'],['gw','tarjetas'],['gw','openb'],['pagos','bus'],['tarjetas','pg'],['tarjetas','bus'],['openb','bus'],['bus','obs'],['pg','obs']];
+
+  caps = [
+    { n:'01', es:{t:'Sistemas distribuidos',d:'Microservicios desacoplados que escalan por separado y fallan sin arrastrar al resto.'}, en:{t:'Distributed systems',d:'Decoupled microservices that scale independently and fail without dragging the rest down.'} },
+    { n:'02', es:{t:'Observabilidad y trazabilidad',d:'Logs, métricas y trazas para entender el sistema antes de que el usuario note algo.'}, en:{t:'Observability & tracing',d:'Logs, metrics and traces to understand the system before users notice anything.'} },
+    { n:'03', es:{t:'Resiliencia y alta disponibilidad',d:'Reintentos, circuit breakers y redundancia para que todo siga de pie.'}, en:{t:'Resilience & high availability',d:'Retries, circuit breakers and redundancy that keep everything standing.'} },
+    { n:'04', es:{t:'DevOps y CI/CD',d:'Pipelines en GitHub Actions y Azure DevOps que entregan sin drama ni sorpresas.'}, en:{t:'DevOps & CI/CD',d:'GitHub Actions and Azure DevOps pipelines that ship with no drama, no surprises.'} },
+    { n:'05', es:{t:'Liderazgo técnico',d:'Acompaño equipos: decisiones de arquitectura, mentoría y foco compartido.'}, en:{t:'Technical leadership',d:'I guide teams: architecture decisions, mentorship and shared focus.'} },
+    { n:'06', es:{t:'Puente técnico–negocio',d:'Traduzco requisitos de negocio en arquitectura, y arquitectura en valor real.'}, en:{t:'Tech–business bridge',d:'I translate business needs into architecture, and architecture into real value.'} },
+    { n:'07', es:{t:'Auditoría y cumplimiento',d:'Sistemas auditables y alineados a la regulación de cada sector.'}, en:{t:'Audit & compliance',d:'Auditable systems aligned with each sector’s regulation.'} },
+  ];
+
+  stackGroups = [
+    { es:'Lenguajes', en:'Languages', items:['C# (.NET Core)','Python · Django · FastAPI','Node.js','Java','SQL'] },
+    { es:'Frontend', en:'Frontend', items:['Next.js','React','React Native'] },
+    { es:'DevOps & CI/CD', en:'DevOps & CI/CD', items:['GitHub Actions','Azure Pipelines','GitHub','Azure DevOps'] },
+    { es:'Contenedores & Nube', en:'Containers & Cloud', items:['AWS','Amazon ECS','Kubernetes'] },
+    { es:'Arquitectura', en:'Architecture', items:['Microservicios','Event-driven','Vendorizada','No vendorizada'] },
+  ];
+
+  sectors = [
+    { es:{t:'Sector financiero',d:'Banca, transacciones y cumplimiento regulatorio.'}, en:{t:'Financial sector',d:'Banking, transactions and regulatory compliance.'} },
+    { es:{t:'Sector médico',d:'Sistemas para laboratorios y manejo de datos sensibles.'}, en:{t:'Healthcare',d:'Systems for labs and handling sensitive data.'} },
+    { es:{t:'Sucursales no bancarias',d:'Corresponsalía y servicios financieros distribuidos.'}, en:{t:'Non-bank branches',d:'Agent networks and distributed financial services.'} },
+    { es:{t:'Integraciones bancarias',d:'Conexión de terceros con plataformas bancarias.'}, en:{t:'Banking integrations',d:'Connecting third parties to banking platforms.'} },
+    { es:{t:'Aceptación de pagos',d:'Cobros confiables, conciliados y a prueba de fallos.'}, en:{t:'Payment acceptance',d:'Reliable, reconciled, fail-safe collections.'} },
+    { es:{t:'Emisión de tarjetas',d:'Emisión y control de medios de pago a escala.'}, en:{t:'Card issuing',d:'Issuing and controlling payment cards at scale.'} },
+  ];
+
+  projData = [
+    { name:'Poket', tags:['pay','fin'], stack:['React Native','Node.js','AWS','Kubernetes'], es:{kind:'Billetera digital · Pagos',d:'Billetera y aceptación de pagos pensada para acercar servicios financieros a más personas.'}, en:{kind:'Digital wallet · Payments',d:'A wallet and payment acceptance product built to bring financial services to more people.'} },
+    { name:'Core de Tarjetas LAFISE', tags:['pay','fin'], stack:['C# .NET','PostgreSQL','Amazon ECS','Event-driven'], es:{kind:'Emisión y control de tarjetas',d:'Core regional para emitir y controlar medios de pago en varios países.'}, en:{kind:'Card issuing & control',d:'A regional core to issue and control payment cards across several countries.'} },
+    { name:'ServiRED LAFISE', tags:['fin'], stack:['.NET Core','SQL','Azure DevOps'], es:{kind:'Red de sucursales no bancarias',d:'Plataforma para operar servicios financieros fuera de la sucursal tradicional.'}, en:{kind:'Non-bank branch network',d:'A platform to run financial services beyond the traditional branch.'} },
+    { name:'OpenBanking', tags:['fin'], stack:['FastAPI','OAuth2','AWS','Observabilidad'], es:{kind:'Integraciones · Open Banking',d:'Capa estándar para que terceros se conecten a plataformas bancarias con seguridad.'}, en:{kind:'Integrations · Open Banking',d:'A standard layer for third parties to securely connect to banking platforms.'} },
+    { name:'Labsys', tags:['med'], stack:['Django','PostgreSQL','React'], es:{kind:'Sistema para sector médico',d:'Sistema para laboratorios médicos, con foco en la trazabilidad de los resultados.'}, en:{kind:'Healthcare system',d:'A system for medical labs, focused on the traceability of results.'} },
+  ];
+
+  filterDefs = [
+    { id:'all', es:'Todos', en:'All' },
+    { id:'fin', es:'Financiero', en:'Financial' },
+    { id:'pay', es:'Pagos', en:'Payments' },
+    { id:'med', es:'Médico', en:'Healthcare' },
+  ];
+
+  methods = ['Claude Code','Cursor','Antigravity'];
+
+  T = {
+    es:{
+      status:'Disponible', langBtn:'EN', navA:'Arquitectura', navS:'Stack', navSec:'Sectores', navP:'Proyectos', navBlog:'Blog',
+      heroKicker:'Arquitecto de Software · Nube AWS',
+      heroTitle:'Construyo lo que el negocio no ve, pero siente cada día.',
+      heroSub:'Arquitecto de software en la nube con 6 años diseñando sistemas distribuidos en AWS: microservicios observables, resilientes y de alta disponibilidad. Me gusta cerrar la brecha entre la decisión técnica y el crecimiento del negocio.',
+      ctaTalk:'Hablemos', ctaWork:'Ver proyectos',
+      stat1:'años de experiencia', stat2:'arquitecto certificado', stat3:'financiero · médico · pagos',
+      archTag:'ARQUITECTURA EN VIVO', archTitle:'Una arquitectura, contada en vivo',
+      archLead:'Así se ve un sistema diseñado para fallar bien: capas desacopladas, comunicación asíncrona y visibilidad de punta a punta.',
+      archHint:'// pasa el cursor o toca cada pieza',
+      capTag:'CAPACIDADES', capTitle:'Lo que hago bien',
+      stackTag:'STACK', stackTitle:'Herramientas que domino',
+      sectorsTag:'DOMINIOS', sectorsTitle:'Dónde he dejado huella',
+      sectorsLead:'Seis años cruzando sectores donde un error no es una opción.',
+      projTag:'PROYECTOS', projTitle:'Proyectos', projLead:'Una muestra de sistemas que llevé a producción.',
+      methTag:'METODOLOGÍA', methTitle:'Cómo construyo hoy',
+      methBody:'Integro agentes de IA dentro de una metodología de desarrollo propia. No para reemplazar el criterio, sino para multiplicarlo: más velocidad, menos trabajo repetitivo y más tiempo para la arquitectura y el negocio.',
+      methC1:'# desarrollo agéntico + criterio humano', methC2:'arquitectura propuesta', methC3:'tests generados', methC4:'> construyendo',
+      certTag:'CERTIFICACIÓN',
+      contactTitle:'Hablemos de tu sistema', contactLead:'Reclutador o cliente: si necesitas a alguien que entienda el código y el negocio por igual, escríbeme.',
+      footer:'Diseñado y construido por Jerry Mejía',
+    },
+    en:{
+      status:'Available', langBtn:'ES', navA:'Architecture', navS:'Stack', navSec:'Sectors', navP:'Projects', navBlog:'Blog',
+      heroKicker:'Software Architect · AWS Cloud',
+      heroTitle:'I build what the business never sees — but feels every day.',
+      heroSub:'Cloud software architect with 6 years designing distributed systems on AWS: observable, resilient, highly-available microservices. I love closing the gap between the technical decision and business growth.',
+      ctaTalk:'Let’s talk', ctaWork:'See projects',
+      stat1:'years of experience', stat2:'certified architect', stat3:'finance · health · payments',
+      archTag:'LIVE ARCHITECTURE', archTitle:'One architecture, told live',
+      archLead:'This is what a system designed to fail gracefully looks like: decoupled layers, async communication and end-to-end visibility.',
+      archHint:'// hover or tap each piece',
+      capTag:'CAPABILITIES', capTitle:'What I do well',
+      stackTag:'STACK', stackTitle:'Tools I’m fluent in',
+      sectorsTag:'DOMAINS', sectorsTitle:'Where I’ve left a mark',
+      sectorsLead:'Six years across sectors where a mistake is not an option.',
+      projTag:'PROJECTS', projTitle:'Projects', projLead:'A sample of systems I took to production.',
+      methTag:'METHODOLOGY', methTitle:'How I build today',
+      methBody:'I weave AI agents into my own development methodology. Not to replace judgment, but to multiply it: more speed, less busywork and more time for architecture and the business.',
+      methC1:'# agentic dev + human judgment', methC2:'architecture proposed', methC3:'tests generated', methC4:'> building',
+      certTag:'CERTIFICATION',
+      contactTitle:'Let’s talk about your system', contactLead:'Recruiter or client: if you need someone who speaks both code and business, reach out.',
+      footer:'Designed and built by Jerry Mejía',
+    }
+  };
+
+  termEs = ['$ whoami','jerry_mejia · arquitecto_cloud','$ cat perfil.json','{','  "años": 6,','  "nube": "AWS",','  "foco": ["distribuido","resiliente","alta_disponibilidad"]','}','$ ./deploy --region latam --strategy zero-downtime','✓ build   ✓ tests   ✓ canary 100%','sistemas en producción. negocio creciendo.'].join('\n');
+  termEn = ['$ whoami','jerry_mejia · cloud_architect','$ cat profile.json','{','  "years": 6,','  "cloud": "AWS",','  "focus": ["distributed","resilient","high_availability"]','}','$ ./deploy --region latam --strategy zero-downtime','✓ build   ✓ tests   ✓ canary 100%','systems in production. business growing.'].join('\n');
+
+  setNode = (id) => this.setState({ active: id });
+  setFilter = (id) => this.setState({ filter: id });
+  toggleLang = () => this.setState(s => ({ lang: s.lang === 'es' ? 'en' : 'es' }), () => { this.clearTerm(); this.runTerminal(); });
+
+  componentDidMount() {
+    const t = setTimeout(() => { this.observeReveal(); this.runTerminal(); }, 60);
+    this.termTimers.push(t);
+  }
+  componentWillUnmount() { this.clearTerm(); if (this.io) this.io.disconnect(); }
+
+  clearTerm() { this.termTimers.forEach(clearTimeout); this.termTimers = []; }
+
+  observeReveal() {
+    const els = Array.prototype.slice.call(document.querySelectorAll('[data-reveal]'));
+    if (!('IntersectionObserver' in window)) { els.forEach(e => e.setAttribute('data-shown', '')); return; }
+    this.io = new IntersectionObserver((ents) => {
+      ents.forEach(en => { if (en.isIntersecting) { en.target.setAttribute('data-shown', ''); this.io.unobserve(en.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -7% 0px' });
+    els.forEach(e => this.io.observe(e));
+    const fb = setTimeout(() => els.forEach(e => e.setAttribute('data-shown', '')), 2600);
+    this.termTimers.push(fb);
+  }
+
+  colorTerm(t) {
+    const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return t.split('\n').map(line => {
+      let c = '#8ea0c6';
+      if (line.charAt(0) === '$') c = '#5B8CFF';
+      else if (line.indexOf('✓') >= 0) c = '#3DDC97';
+      else if (line.indexOf('jerry_mejia') >= 0) c = '#E8EBF2';
+      else if (/producción|creciendo|production|growing/.test(line)) c = '#cfd8ee';
+      return '<span style="color:' + c + '">' + esc(line) + '</span>';
+    }).join('\n');
+  }
+
+  runTerminal() {
+    const el = document.getElementById('term-out');
+    if (!el) return;
+    const text = this.state.lang === 'es' ? this.termEs : this.termEn;
+    el.textContent = '';
+    let i = 0;
+    const tick = () => {
+      if (i > text.length) { el.innerHTML = this.colorTerm(text); return; }
+      el.textContent = text.slice(0, i);
+      i += (Math.random() < 0.12 ? 2 : 1);
+      const t = setTimeout(tick, 13 + Math.random() * 24);
+      this.termTimers.push(t);
+    };
+    tick();
+  }
+
+  renderVals() {
+    const lang = this.state.lang;
+    const active = this.state.active;
+    const ui = this.T[lang];
+
+    const nmap = {};
+    this.nodes.forEach(n => { nmap[n.id] = n; });
+    const nodes = this.nodes.map(n => {
+      const on = n.id === active;
+      return {
+        id: n.id, x: n.x, y: n.y, dot: n.dot, l: n[lang].l, s: n[lang].s,
+        bd: on ? '#2F6BFF' : 'rgba(255,255,255,0.12)',
+        bg: on ? 'rgba(47,107,255,0.16)' : 'rgba(255,255,255,0.04)',
+        gl: on ? '0 0 0 1px rgba(47,107,255,0.55), 0 10px 34px rgba(47,107,255,0.4)' : '0 4px 18px rgba(0,0,0,0.4)',
+        click: () => this.setNode(n.id),
+      };
+    });
+    const lines = this.conns.map(c => {
+      const a = nmap[c[0]], b = nmap[c[1]];
+      const on = c[0] === active || c[1] === active;
+      return { x1: a.x, y1: a.y, x2: b.x, y2: b.y, stroke: on ? 'rgba(91,140,255,0.95)' : 'rgba(120,140,200,0.22)', w: on ? 2 : 1.1 };
+    });
+    const an = nmap[active];
+    const activeDetail = { l: an[lang].l, s: an[lang].s, d: an[lang].d };
+
+    const caps = this.caps.map(c => ({ n: c.n, t: c[lang].t, d: c[lang].d }));
+    const stackGroups = this.stackGroups.map(g => ({ label: g[lang], items: g.items }));
+    const sectors = this.sectors.map(s => ({ t: s[lang].t, d: s[lang].d }));
+
+    const fl = this.state.filter;
+    const filters = this.filterDefs.map(f => {
+      const on = f.id === fl;
+      return {
+        label: f[lang], click: () => this.setFilter(f.id),
+        color: on ? '#fff' : '#8a96b4',
+        bg: on ? 'rgba(47,107,255,0.18)' : 'rgba(255,255,255,0.03)',
+        bd: on ? '#2F6BFF' : 'rgba(255,255,255,0.12)',
+      };
+    });
+    const projects = this.projData
+      .filter(p => fl === 'all' || p.tags.indexOf(fl) >= 0)
+      .map(p => ({ name: p.name, kind: p[lang].kind, d: p[lang].d, stack: p.stack }));
+
+    return { lang, ui, nodes, lines, activeDetail, caps, stackGroups, sectors, filters, projects, methods: this.methods, toggleLang: this.toggleLang };
+  }
+}
+</script>
+</body>
+</html>
