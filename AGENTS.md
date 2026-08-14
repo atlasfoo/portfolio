@@ -1,22 +1,35 @@
-## Development
+# AGENTS.md — JAIBA project marker
 
-When starting the dev server, use background mode:
+This repository is **JAIBA-instrumented** (Joint-operations Artificial
+Intelligence Behavioral Architecture). This file is deliberately
+minimal: behavior does not live per-repo.
 
-```
-astro dev --background
-```
+1. **Behavior** — follow the **JAIBA Behavioral Contract** installed
+   globally in your agent configuration (file `jaiba-contract.md` in
+   the agent's global config folder, e.g. `~/.claude/` or `~/.agents/`;
+   installed once per machine by `jaiba-configure`). It defines the
+   brain map, the routing rule (continuation → `conduct:execute` ·
+   question → `ask` · small change → `fast`), and the numbered
+   behavioral rules.
 
-Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
+   *If you cannot find the global contract*, say so before doing
+   substantive work and route the developer to `jaiba-doctor` (checks
+   presence/drift) or `jaiba-configure` (reinstalls it). Do not
+   improvise the missing rules.
 
-## Documentation
+   *If the JAIBA workflow/meta skills (`conduct`, `ask`, `fast`,
+   `jaiba-doctor`, `jaiba-init`, `create-knowledge`, …) aren't
+   available to **you specifically*** — check your own skill list, not
+   the machine's — **say so before doing substantive work** and route
+   the developer to `jaiba-configure` to install them for this agent.
+   A machine can have JAIBA configured for one agent (e.g. Claude Code)
+   and not another (e.g. Cursor) at the same time; never assume a prior
+   `jaiba-configure` run covered the agent you're running as now.
 
-Full documentation: https://docs.astro.build
+2. **Project facts** — identity, stack, scope, the Quality Gate,
+   decisions in force, and external surfaces live in the constitutive
+   memory under `.ai/memory/` (resolved per `jaiba-contract.md` §1
+   — Brain Map — once populated). Active work: `.ai/work/`.
 
-Consult these guides before working on related tasks:
-
-- [Adding pages, dynamic routes, or middleware](https://docs.astro.build/en/guides/routing/)
-- [Working with Astro components](https://docs.astro.build/en/basics/astro-components/)
-- [Using React, Vue, Svelte, or other framework components](https://docs.astro.build/en/guides/framework-components/)
-- [Adding or managing content](https://docs.astro.build/en/guides/content-collections/)
-- [Adding styles or using Tailwind](https://docs.astro.build/en/guides/styling/)
-- [Supporting multiple languages](https://docs.astro.build/en/guides/internationalization/)
+Anything project-specific a maintainer wants agents to know belongs in
+the constitutive memory, not appended here.
