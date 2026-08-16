@@ -1,0 +1,29 @@
+---
+---
+
+<button
+  type="button"
+  id="theme-toggle"
+  data-theme-toggle
+  aria-label="Toggle theme"
+  class="bg-panel border border-border2 rounded-lg px-3 py-1.5"
+>
+  <span aria-hidden="true">&#8728;</span>
+</button>
+
+<script>
+  import { THEME_STORAGE_KEY } from '../../lib/theme';
+
+  const button = document.querySelector('[data-theme-toggle]');
+
+  button?.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+
+    document.documentElement.setAttribute('data-theme', next);
+
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, next);
+    } catch {}
+  });
+</script>

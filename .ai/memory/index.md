@@ -3,7 +3,7 @@ type: index
 title: "Portfolio — memory index"
 description: "Entry point to this repository's constitutive memory."
 tags: [index]
-updated: "2026-08-13"
+updated: "2026-08-15"
 ---
 
 # Portfolio — Memory Index
@@ -42,6 +42,7 @@ decision order. Superseded decisions stay listed — the link tells the
 story.
 
 - [ADR-001 — Adoption of the JAIBA brain structure](decisions/001-jaiba-brain-adoption.md) — The project keeps agent-facing memory in .ai/ under the JAIBA framework.
+- [ADR-002 — Semantic CSS custom properties for dark/light theming](decisions/002-semantic-theme-tokens.md) — Dark/light theme values are semantic CSS custom properties on :root and [data-theme="light"], re-exported through Tailwind v4's @theme inline so ordinary utilities are theme-aware.
 
 ## `reference`
 

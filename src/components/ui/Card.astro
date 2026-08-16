@@ -1,0 +1,22 @@
+---
+interface Props {
+  variant?: "surface" | "accent";
+  eyebrow?: string;
+  title?: string;
+}
+
+const { variant = "surface", eyebrow, title } = Astro.props;
+
+const variantClasses =
+  variant === "accent"
+    ? "border border-[rgba(47,107,255,0.22)] bg-[linear-gradient(180deg,rgba(47,107,255,0.07),rgba(12,16,26,0.4))]"
+    : "border border-border2 bg-panel";
+---
+
+<div class:list={["rounded-xl p-6", variantClasses]}>
+  {eyebrow && <p class="font-mono text-sm text-primary2">{eyebrow}</p>}
+  {title && <h3 class="font-sans font-semibold text-text">{title}</h3>}
+  <div class="text-muted text-sm">
+    <slot />
+  </div>
+</div>

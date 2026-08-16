@@ -1,1 +1,122 @@
 @import "tailwindcss";
+
+/*
+ * Design tokens — source of truth: design-import/Design System.dc.html (v1).
+ * Static values live in @theme. Theme-dependent values are semantic custom
+ * properties on :root (dark, the default) flipped under [data-theme='light'],
+ * re-exported through @theme inline so one utility class is theme-aware.
+ */
+
+@theme {
+  /* Primary · blue */
+  --color-primary-300: #9bb6ff;
+  --color-primary-400: #7aa0ff;
+  --color-primary-500: #5b8cff;
+  --color-primary-600: #2f6bff;
+  --color-primary-700: #1b3fa8;
+  --color-primary-hover: #447bff;
+
+  /* Accent · success & terminal */
+  --color-success-400: #3ddc97;
+  --color-term-red: #ff5f57;
+  --color-term-amber: #febc2e;
+  --color-term-green: #28c840;
+
+  /* Neutral · dark surfaces (bg-base lives in the semantic --bg token) */
+  --color-surface-900: #090c14;
+  --color-surface-800: #0c101a;
+  --color-surface-700: #101420;
+
+  /* Type scale — deltas vs Tailwind defaults (spec: 2xs=10px, 5xl=46px) */
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: 1.4;
+  --text-5xl: 2.875rem;
+  --text-5xl--line-height: 1;
+
+  /* Radii — spec values (md 6px · lg 8px · xl 12px · 2xl 16px), pinned */
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+
+  /* Shadows & glows */
+  --shadow-glow-sm: 0 0 10px rgba(47, 107, 255, 0.6);
+  --shadow-cta: 0 8px 28px rgba(47, 107, 255, 0.4);
+  --shadow-card: 0 30px 80px rgba(0, 0, 0, 0.55);
+  --shadow-success: 0 0 0 5px rgba(61, 220, 151, 0.18);
+
+  /* Font families — variables emitted by Astro's Fonts API (astro.config.mjs) */
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  --font-sans: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+/* Semantic theme tokens — dark is the default theme */
+:root {
+  --bg: #06080d;
+  --text: #f3f5fa;
+  --body: #e8ebf2;
+  --muted: #9aa6c2;
+  --subtle: #8a96b4;
+  --faint: #7e8aa8;
+  --dim: #5d6883;
+  --panel: rgba(255, 255, 255, 0.025);
+  --panel2: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.07);
+  --border2: rgba(255, 255, 255, 0.14);
+  --glow1: rgba(47, 107, 255, 0.18);
+  --glow2: rgba(91, 108, 255, 0.1);
+  --primary: #2f6bff;
+  --primary2: #5b8cff;
+}
+
+[data-theme="light"] {
+  --bg: #eef1f8;
+  --text: #0e1320;
+  --body: #1b2233;
+  --muted: #46506b;
+  --subtle: #5c6886;
+  --faint: #76819e;
+  --dim: #8a95b0;
+  --panel: rgba(255, 255, 255, 0.78);
+  --panel2: rgba(255, 255, 255, 0.6);
+  --border: rgba(20, 34, 80, 0.08);
+  --border2: rgba(20, 34, 80, 0.16);
+  --glow1: rgba(47, 107, 255, 0.09);
+  --glow2: rgba(91, 108, 255, 0.05);
+  --primary: #2f6bff;
+  --primary2: #2f6bff;
+}
+
+/* Expose semantic tokens as theme-aware utilities (bg-panel, text-muted, …) */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-text: var(--text);
+  --color-body: var(--body);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-faint: var(--faint);
+  --color-dim: var(--dim);
+  --color-panel: var(--panel);
+  --color-panel2: var(--panel2);
+  --color-border: var(--border);
+  --color-border2: var(--border2);
+  --color-primary: var(--primary);
+  --color-primary2: var(--primary2);
+}
+
+@layer base {
+  html {
+    background: var(--bg);
+    color: var(--body);
+    font-family: var(--font-sans);
+    transition:
+      background 0.4s ease,
+      color 0.4s ease;
+  }
+
+  ::selection {
+    background: rgba(47, 107, 255, 0.35);
+    color: #fff;
+  }
+}
