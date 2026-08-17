@@ -6,6 +6,7 @@
   id="theme-toggle"
   data-theme-toggle
   aria-label="Toggle theme"
+  aria-pressed="false"
   class="bg-panel border border-border2 rounded-lg px-3 py-1.5"
 >
   <span aria-hidden="true">&#8728;</span>
@@ -16,11 +17,19 @@
 
   const button = document.querySelector('[data-theme-toggle]');
 
+  const syncPressedState = () => {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    button?.setAttribute('aria-pressed', String(isLight));
+  };
+
+  syncPressedState();
+
   button?.addEventListener('click', () => {
     const current = document.documentElement.getAttribute('data-theme');
     const next = current === 'dark' ? 'light' : 'dark';
 
     document.documentElement.setAttribute('data-theme', next);
+    syncPressedState();
 
     try {
       localStorage.setItem(THEME_STORAGE_KEY, next);

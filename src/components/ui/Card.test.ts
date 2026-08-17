@@ -18,7 +18,7 @@ test('accent variant renders accent classes', async () => {
 
   expect(result).toContain('border-[rgba(47,107,255,0.22)]');
   expect(result).toContain(
-    'bg-[linear-gradient(180deg,rgba(47,107,255,0.07),rgba(12,16,26,0.4))]',
+    'bg-[linear-gradient(180deg,rgba(47,107,255,0.07),var(--bg))]',
   );
 });
 

@@ -9,7 +9,7 @@ const { variant = "surface", eyebrow, title } = Astro.props;
 
 const variantClasses =
   variant === "accent"
-    ? "border border-[rgba(47,107,255,0.22)] bg-[linear-gradient(180deg,rgba(47,107,255,0.07),rgba(12,16,26,0.4))]"
+    ? "border border-[rgba(47,107,255,0.22)] bg-[linear-gradient(180deg,rgba(47,107,255,0.07),var(--bg))]"
     : "border border-border2 bg-panel";
 ---
 
