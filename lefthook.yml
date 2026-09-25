@@ -47,6 +47,12 @@ pre-commit:
       glob: "*.{js,jsx,ts,tsx,astro,css,json}"
       run: bunx biome check --write --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
       stage_fixed: true
+    typecheck:
+      glob: "*.{ts,tsx,astro}"
+      run: bun run typecheck
+    actionlint:
+      glob: ".github/workflows/*.{yml,yaml}"
+      run: bun run lint:actions
 
 commit-msg:
   commands:

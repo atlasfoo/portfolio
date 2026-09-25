@@ -1,0 +1,196 @@
+name: Release
+
+on:
+  push:
+    branches: [master]
+
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    # Don't re-enter on the push this same workflow makes (the bump
+    # commit itself), or release.yml would trigger itself forever.
+    if: ${{ !startsWith(github.event.head_commit.message, 'chore(release):') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      version: ${{ steps.version.outputs.version }}
+      released: ${{ steps.released.outputs.released }}
+    steps:
+      - name: Generate App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.BUMP_APP_ID }}
+          private-key: ${{ secrets.BUMP_APP_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.2"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Configure git identity
+        env:
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+        run: |
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${APP_SLUG}[bot]@users.noreply.github.com"
+
+      - name: Capture pre-bump HEAD
+        id: pre-bump
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Bump version, changelog, and tag
+        run: bun run release
+
+      - name: Check whether a release was created
+        id: released
+        env:
+          PRE_BUMP_SHA: ${{ steps.pre-bump.outputs.sha }}
+        run: |
+          # commit-and-tag-version no-ops (exit 0, HEAD unchanged) when
+          # every commit since the last tag is a non-releasable type
+          # (chore/docs/ci/style/test/build/refactor) — no feat/fix/perf/
+          # BREAKING CHANGE to bump for. Detect that here instead of
+          # assuming a release always happened.
+          if [ "$(git rev-parse HEAD)" = "$PRE_BUMP_SHA" ]; then
+            echo "No releasable commits since the last tag — nothing to bump."
+            echo "released=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "released=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Push commit and tag
+        if: steps.released.outputs.released == 'true'
+        run: git push --follow-tags origin HEAD:master
+
+      - name: Expose version and tag
+        id: version
+        if: steps.released.outputs.released == 'true'
+        run: |
+          version="$(jq -r .version package.json)"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${version}" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: bump
+    if: needs.bump.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.bump.outputs.tag }}
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.2"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Plan gate — test
+        run: bun run test
+
+      - name: Plan gate — coverage
+        run: bun run test:coverage
+
+      - name: Plan gate — build
+        run: bun run build
+
+      - name: Package reproducible tarball
+        env:
+          VERSION: ${{ needs.bump.outputs.version }}
+        run: |
+          tar --sort=name --mtime="UTC 2024-01-01" --owner=0 --group=0 \
+            --numeric-owner -czf "dist-${VERSION}.tar.gz" -C dist .
+
+      - name: Upload tarball
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-tarball
+          path: dist-${{ needs.bump.outputs.version }}.tar.gz
+          retention-days: 7
+
+  publish:
+    needs: [bump, build]
+    if: needs.bump.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Generate App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.BUMP_APP_ID }}
+          private-key: ${{ secrets.BUMP_APP_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.bump.outputs.tag }}
+          sparse-checkout: |
+            CHANGELOG.md
+          sparse-checkout-cone-mode: false
+
+      - name: Download tarball
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-tarball
+
+      - name: Extract release notes from CHANGELOG
+        env:
+          VERSION: ${{ needs.bump.outputs.version }}
+        run: |
+          awk -v ver="$VERSION" '
+            function is_heading(l) { return l ~ /^(## |### )\[?[0-9]/ }
+            function heading_version(l,    v) {
+              v = l
+              sub(/^(## |### )/, "", v)
+              sub(/^\[/, "", v)
+              sub(/\].*/, "", v)
+              sub(/ .*/, "", v)
+              return v
+            }
+            {
+              if (is_heading($0)) {
+                if (found) exit
+                if (heading_version($0) == ver) found = 1
+              }
+              if (found) print
+            }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "Could not find a CHANGELOG.md section for version ${VERSION}" >&2
+            exit 1
+          fi
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          TAG: ${{ needs.bump.outputs.tag }}
+          VERSION: ${{ needs.bump.outputs.version }}
+        run: |
+          gh release create "$TAG" \
+            "dist-${VERSION}.tar.gz" \
+            --title "$TAG" \
+            --notes-file release-notes.md

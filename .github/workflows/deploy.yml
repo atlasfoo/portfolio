@@ -1,0 +1,87 @@
+name: Deploy
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to deploy (e.g. v1.2.3)"
+        required: true
+        type: string
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - production
+        default: production
+
+permissions: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'production' }}
+    permissions:
+      contents: read
+    steps:
+      - name: Resolve release tag
+        id: release
+        env:
+          DISPATCH_TAG: ${{ inputs.tag }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          tag="${DISPATCH_TAG:-$RELEASE_TAG}"
+          if [ -z "$tag" ]; then
+            echo "No tag resolved from workflow_dispatch input or release event" >&2
+            exit 1
+          fi
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.release.outputs.tag }}
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.2"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Download release artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: gh release download "$TAG" --repo "${{ github.repository }}" --pattern 'dist-*.tar.gz' --dir .
+
+      - name: Extract artifact
+        run: |
+          mkdir -p dist
+          tar -xzf dist-*.tar.gz -C dist
+
+      - name: Upload Worker version
+        id: upload
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_DEPLOY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -o pipefail
+          bunx wrangler versions upload --message "Deploy ${TAG}" | tee upload-output.txt
+          version_id="$(grep -oP 'Worker Version ID:\s*\K\S+' upload-output.txt)"
+          if [ -z "$version_id" ]; then
+            echo "Could not parse Worker Version ID from wrangler output" >&2
+            exit 1
+          fi
+          echo "version_id=${version_id}" >> "$GITHUB_OUTPUT"
+
+      - name: Promote version to 100%
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_DEPLOY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          VERSION_ID: ${{ steps.upload.outputs.version_id }}
+        run: bunx wrangler versions deploy "${VERSION_ID}@100" --yes

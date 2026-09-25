@@ -1,0 +1,60 @@
+name: Infra
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - "infra/**"
+  push:
+    branches: [master]
+    paths:
+      - "infra/**"
+
+permissions: {}
+
+concurrency:
+  group: infra-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  pulumi:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_INFRA }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.2"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Pulumi login
+        env:
+          PULUMI_BACKEND_URL: ${{ vars.PULUMI_BACKEND_URL }}
+        run: bunx pulumi login "$PULUMI_BACKEND_URL"
+
+      - name: Pulumi stack select
+        run: bunx pulumi stack select prod --cwd infra
+
+      - name: Pulumi preview
+        if: github.event_name == 'pull_request'
+        run: bunx pulumi preview --cwd infra
+
+      - name: Pulumi up
+        if: github.event_name == 'push'
+        run: bunx pulumi up --cwd infra --yes
