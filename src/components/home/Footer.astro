@@ -1,0 +1,20 @@
+---
+import { FOOTER_COPY, HERO_COPY } from '../../content/homepage';
+import { PAGE_CONTAINER_CLASS } from '../../lib/home/layout';
+---
+
+<footer>
+  <div
+    class={`${PAGE_CONTAINER_CLASS} flex flex-wrap items-center justify-between gap-3.5 border-t border-border2 pt-[30px] pb-14`}
+  >
+    <span class="font-mono text-[11.5px] text-dim">
+      {FOOTER_COPY.name} —{' '}
+      <span data-lang-content="en">{HERO_COPY.kicker.en}</span>
+      <span data-lang-content="es">{HERO_COPY.kicker.es}</span>
+    </span>
+    <span class="font-mono text-[11.5px] text-dim">
+      <span data-lang-content="en">{FOOTER_COPY.credit.en}</span>
+      <span data-lang-content="es">{FOOTER_COPY.credit.es}</span>
+    </span>
+  </div>
+</footer>

@@ -1,0 +1,46 @@
+---
+import { SECTION_COPY, SECTORS } from '../../content/homepage';
+import { SECTION_TITLE_CLASS } from '../../lib/home/layout';
+---
+
+<div class="space-y-8">
+  <div class="space-y-3">
+    <p class="font-mono text-xs uppercase tracking-wide text-primary-600">
+      <span data-lang-content="en">{SECTION_COPY.sectors.index} — {SECTION_COPY.sectors.tag.en}</span>
+      <span data-lang-content="es">{SECTION_COPY.sectors.index} — {SECTION_COPY.sectors.tag.es}</span>
+    </p>
+    <h2 class={SECTION_TITLE_CLASS}>
+      <span data-lang-content="en">{SECTION_COPY.sectors.title.en}</span>
+      <span data-lang-content="es">{SECTION_COPY.sectors.title.es}</span>
+    </h2>
+    {
+      SECTION_COPY.sectors.lead && (
+        <p class="max-w-[600px] font-sans text-base leading-relaxed text-muted">
+          <span data-lang-content="en">{SECTION_COPY.sectors.lead.en}</span>
+          <span data-lang-content="es">{SECTION_COPY.sectors.lead.es}</span>
+        </p>
+      )
+    }
+  </div>
+
+  <div class="grid grid-cols-[repeat(auto-fill,minmax(255px,1fr))] gap-3.5">
+    {
+      SECTORS.map((sector) => (
+        // biome-ignore lint/correctness/useJsxKeyInIterable: Astro has no vdom reconciliation; native element has no key slot.
+        <div class="flex items-start gap-3 rounded-[13px] border border-border2 bg-panel p-[22px] transition-[border-color,background-color] duration-200 hover:border-[rgba(47,107,255,0.4)] hover:bg-primary-600/5">
+          <div class="size-2.5 mt-1 rounded-[3px] bg-primary shrink-0 shadow-[0_0_8px_var(--color-primary)]" />
+          <div>
+            <h3 class="font-sans font-semibold text-[16.5px] text-text">
+              <span data-lang-content="en" set:html={sector.title.en} />
+              <span data-lang-content="es" set:html={sector.title.es} />
+            </h3>
+            <p class="font-sans text-muted text-[13.5px]">
+              <span data-lang-content="en" set:html={sector.description.en} />
+              <span data-lang-content="es" set:html={sector.description.es} />
+            </p>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>

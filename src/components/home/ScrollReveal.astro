@@ -1,0 +1,66 @@
+---
+/**
+ * Behaviour-only island: renders no markup, just the client script that
+ * reveals every `[data-reveal]` element on the page (ported from the design
+ * mock's `observeReveal()`).
+ *
+ * Mount it once per page that uses `[data-reveal]`. It deliberately does NOT
+ * live in `Layout.astro` next to the theme/lang init scripts: those must run
+ * before first paint to avoid a FOUC, while this one only needs the
+ * `[data-reveal]` elements to exist — Astro's bundled `<script>` is a
+ * deferred module, so it runs after the document is parsed.
+ */
+---
+
+<script>
+  import {
+    FALLBACK_REVEAL_MS,
+    resolveRevealStrategy,
+  } from '../../lib/home/scroll-reveal';
+
+  /** Companion attribute the `[data-reveal][data-shown]` CSS rule waits for. */
+  const SHOWN_ATTRIBUTE = 'data-shown';
+
+  /** Mock's thresholds: reveal once ~12% is in view, biased 7% up the viewport. */
+  const OBSERVER_OPTIONS: IntersectionObserverInit = {
+    threshold: 0.12,
+    rootMargin: '0px 0px -7% 0px',
+  };
+
+  const targets = Array.from(document.querySelectorAll('[data-reveal]'));
+
+  const reveal = (element: Element) => element.setAttribute(SHOWN_ATTRIBUTE, '');
+
+  const strategy = resolveRevealStrategy(
+    'IntersectionObserver' in window,
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
+
+  if (strategy === 'immediate') {
+    // Sad paths — no observer support, or reduced motion requested: show
+    // everything synchronously, no transition to wait on.
+    for (const target of targets) reveal(target);
+  } else {
+    for (const target of targets) {
+      let fallbackTimer = 0;
+
+      const observer = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) show();
+      }, OBSERVER_OPTIONS);
+
+      // One observer per target, so disconnecting *is* unobserving it — the
+      // element stays revealed and is never re-hidden on scroll-out.
+      const show = () => {
+        window.clearTimeout(fallbackTimer);
+        observer.disconnect();
+        reveal(target);
+      };
+
+      observer.observe(target);
+
+      // Belt and suspenders: if the observer never fires (an environment that
+      // reports support but stays silent), the content still becomes visible.
+      fallbackTimer = window.setTimeout(show, FALLBACK_REVEAL_MS);
+    }
+  }
+</script>

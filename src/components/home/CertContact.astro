@@ -1,0 +1,67 @@
+---
+import { CERT_COPY, CONTACT_COPY } from '../../content/homepage';
+import Button from '../ui/Button.astro';
+
+const emailLink = CONTACT_COPY.links.find((link) => link.id === 'email');
+const githubLink = CONTACT_COPY.links.find((link) => link.id === 'github');
+const linkedinLink = CONTACT_COPY.links.find((link) => link.id === 'linkedin');
+
+const PILL_CLASS =
+  'font-mono text-xs rounded-[10px] border border-border2 bg-panel px-4 py-3 hover:border-primary2';
+---
+
+<div class="grid grid-cols-1 items-stretch gap-6 md:grid-cols-[0.8fr_1.2fr]">
+  <div class="flex flex-col gap-5 rounded-2xl border border-border2 bg-panel p-[30px]">
+    <p class="font-mono text-xs uppercase text-muted">
+      <span data-lang-content="en" set:html={CERT_COPY.tag.en} />
+      <span data-lang-content="es" set:html={CERT_COPY.tag.es} />
+    </p>
+    <div
+      class="flex size-[74px] flex-col items-center justify-center rounded-[14px] bg-[linear-gradient(145deg,#2F6BFF,#1b3fa8)] shadow-[0_10px_30px_rgba(47,107,255,0.35)]"
+    >
+      <span class="font-serif text-2xl text-white">{CERT_COPY.badge.top}</span>
+      <span class="font-mono text-[8px] tracking-[0.1em] text-white/80">{CERT_COPY.badge.bottom}</span>
+    </div>
+    <div>
+      <p class="font-sans font-semibold text-[17px] text-text">{CERT_COPY.name}</p>
+      <p class="font-mono text-[11px] text-faint">{CERT_COPY.issuer}</p>
+    </div>
+  </div>
+
+  <div
+    class="flex flex-col justify-center gap-5 rounded-2xl border border-[rgba(47,107,255,0.28)] bg-panel bg-[radial-gradient(600px_300px_at_100%_0%,rgba(47,107,255,0.14),transparent_60%)] p-[38px]"
+  >
+    <h2 class="font-serif font-normal text-[clamp(28px,3.6vw,42px)] leading-[1.1] text-text">
+      <span data-lang-content="en">{CONTACT_COPY.title.en}</span>
+      <span data-lang-content="es">{CONTACT_COPY.title.es}</span>
+    </h2>
+    <p class="max-w-[480px] font-sans text-[15.5px] text-muted">
+      <span data-lang-content="en" set:html={CONTACT_COPY.lead.en} />
+      <span data-lang-content="es" set:html={CONTACT_COPY.lead.es} />
+    </p>
+
+    <div class="flex flex-wrap items-center gap-4">
+      {
+        emailLink && (
+          <a href={emailLink.href}>
+            <Button>{emailLink.label}</Button>
+          </a>
+        )
+      }
+      {
+        githubLink && (
+          <a href={githubLink.href} target="_blank" rel="noopener" class={PILL_CLASS}>
+            {githubLink.label}
+          </a>
+        )
+      }
+      {
+        linkedinLink && (
+          <a href={linkedinLink.href} target="_blank" rel="noopener" class={PILL_CLASS}>
+            {linkedinLink.label}
+          </a>
+        )
+      }
+    </div>
+  </div>
+</div>

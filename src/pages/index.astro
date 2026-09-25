@@ -1,11 +1,63 @@
 ---
-import Welcome from '../components/Welcome.astro';
+import ArchitectureSection from '../components/home/ArchitectureSection.astro';
+import Capabilities from '../components/home/Capabilities.astro';
+import CertContact from '../components/home/CertContact.astro';
+import Footer from '../components/home/Footer.astro';
+import Hero from '../components/home/Hero.astro';
+import Methodology from '../components/home/Methodology.astro';
+import Nav from '../components/home/Nav.astro';
+import Projects from '../components/home/Projects.astro';
+import ScrollReveal from '../components/home/ScrollReveal.astro';
+import Sectors from '../components/home/Sectors.astro';
+import Stack from '../components/home/Stack.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import { PAGE_CONTAINER_CLASS } from '../lib/home/layout';
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Jerry Mejía" description="Portfolio and design system.">
+	<Nav />
+	<main>
+		<section data-reveal>
+			<div class={PAGE_CONTAINER_CLASS}>
+				<Hero />
+			</div>
+		</section>
+		<section id="architecture" data-reveal>
+			<div class={PAGE_CONTAINER_CLASS}>
+				<ArchitectureSection />
+			</div>
+		</section>
+		<section data-reveal>
+			<div class={PAGE_CONTAINER_CLASS}>
+				<Capabilities />
+			</div>
+		</section>
+		<section id="stack" data-reveal>
+			<div class={PAGE_CONTAINER_CLASS}>
+				<Stack />
+			</div>
+		</section>
+		<section id="sectors" data-reveal>
+			<div class={PAGE_CONTAINER_CLASS}>
+				<Sectors />
+			</div>
+		</section>
+		<section id="projects" data-reveal>
+			<div class={PAGE_CONTAINER_CLASS}>
+				<Projects />
+			</div>
+		</section>
+		<section data-reveal>
+			<div class={PAGE_CONTAINER_CLASS}>
+				<Methodology />
+			</div>
+		</section>
+		<section id="contact" data-reveal>
+			<div class={PAGE_CONTAINER_CLASS}>
+				<CertContact />
+			</div>
+		</section>
+	</main>
+	<Footer />
+	<ScrollReveal />
 </Layout>

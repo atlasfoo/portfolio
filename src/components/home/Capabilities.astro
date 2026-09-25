@@ -1,0 +1,44 @@
+---
+import { CAPABILITIES, SECTION_COPY } from '../../content/homepage';
+import { SECTION_TITLE_CLASS } from '../../lib/home/layout';
+import Card from '../ui/Card.astro';
+---
+
+<div class="space-y-8">
+  <div class="space-y-3">
+    <p class="font-mono text-xs uppercase tracking-wide text-primary-600">
+      <span data-lang-content="en">{SECTION_COPY.capabilities.index} — {SECTION_COPY.capabilities.tag.en}</span>
+      <span data-lang-content="es">{SECTION_COPY.capabilities.index} — {SECTION_COPY.capabilities.tag.es}</span>
+    </p>
+    <h2 class={SECTION_TITLE_CLASS}>
+      <span data-lang-content="en">{SECTION_COPY.capabilities.title.en}</span>
+      <span data-lang-content="es">{SECTION_COPY.capabilities.title.es}</span>
+    </h2>
+    {
+      SECTION_COPY.capabilities.lead && (
+        <p class="max-w-[600px] font-sans text-base leading-relaxed text-muted">
+          <span data-lang-content="en">{SECTION_COPY.capabilities.lead.en}</span>
+          <span data-lang-content="es">{SECTION_COPY.capabilities.lead.es}</span>
+        </p>
+      )
+    }
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {
+      CAPABILITIES.map((capability) => (
+        // biome-ignore lint/correctness/useJsxKeyInIterable: Astro has no vdom reconciliation; Card's Props (read-only) has no key slot.
+        <Card variant="surface" eyebrow={capability.number}>
+          <h3 class="font-sans font-semibold text-text">
+            <span data-lang-content="en" set:html={capability.title.en} />
+            <span data-lang-content="es" set:html={capability.title.es} />
+          </h3>
+          <p>
+            <span data-lang-content="en" set:html={capability.description.en} />
+            <span data-lang-content="es" set:html={capability.description.es} />
+          </p>
+        </Card>
+      ))
+    }
+  </div>
+</div>

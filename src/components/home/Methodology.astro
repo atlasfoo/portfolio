@@ -1,0 +1,58 @@
+---
+import { METHODOLOGY_COPY } from '../../content/homepage';
+import Chip from '../ui/Chip.astro';
+
+const { index, tag, title, body, tools, terminal } = METHODOLOGY_COPY;
+---
+
+<div
+  class="grid grid-cols-1 items-center gap-[38px] rounded-[18px] border border-[rgba(47,107,255,0.25)] bg-panel2 bg-[radial-gradient(700px_300px_at_0%_0%,rgba(47,107,255,0.12),transparent_60%)] p-[clamp(28px,4vw,46px)] md:grid-cols-[1.1fr_0.9fr]"
+>
+  <div>
+    <p class="mb-4 font-mono text-xs uppercase tracking-wide text-primary-600">
+      {index} — <span data-lang-content="en" set:html={tag.en} /><span data-lang-content="es" set:html={tag.es} />
+    </p>
+    <h2 class="mb-4 font-serif font-normal text-[clamp(26px,3.4vw,40px)] leading-[1.1] text-text">
+      <span data-lang-content="en">{title.en}</span>
+      <span data-lang-content="es">{title.es}</span>
+    </h2>
+    <p class="mb-6 font-sans text-[15.5px] leading-[1.66] text-muted">
+      <span data-lang-content="en" set:html={body.en} />
+      <span data-lang-content="es" set:html={body.es} />
+    </p>
+    <div class="flex flex-wrap gap-2">
+      {
+        tools.map((tool) => (
+          // biome-ignore lint/correctness/useJsxKeyInIterable: Astro has no vdom reconciliation; native element has no key slot.
+          <Chip variant="accent">{tool}</Chip>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="rounded-xl border border-border bg-[var(--bg)]/60 p-5 font-mono text-[12.5px] leading-[1.85]">
+    <div class="text-primary2">{terminal.command}</div>
+    <div class="text-dim">
+      <span data-lang-content="en" set:html={terminal.comment.en} />
+      <span data-lang-content="es" set:html={terminal.comment.es} />
+    </div>
+    {
+      terminal.done.map((line) => (
+        // biome-ignore lint/correctness/useJsxKeyInIterable: Astro has no vdom reconciliation; native element has no key slot.
+        <div>
+          <span class="text-success-400">✓</span>{' '}
+          <span data-lang-content="en" set:html={line.en} />
+          <span data-lang-content="es" set:html={line.es} />
+        </div>
+      ))
+    }
+    <div class="text-body">
+      <span data-lang-content="en" set:html={terminal.running.en} />
+      <span data-lang-content="es" set:html={terminal.running.es} />
+      <span
+        aria-hidden="true"
+        class="inline-block h-[13px] w-[7px] animate-pulse bg-primary2 align-text-bottom motion-reduce:animate-none"
+      />
+    </div>
+  </div>
+</div>

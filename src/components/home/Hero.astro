@@ -1,0 +1,63 @@
+---
+import { HERO_COPY } from '../../content/homepage';
+import Button from '../ui/Button.astro';
+import HeroTerminal from './HeroTerminal';
+---
+
+<div class="grid grid-cols-1 items-center gap-14 pt-[78px] pb-16 min-h-[88vh] lg:grid-cols-[1.08fr_0.92fr]">
+  <div>
+    <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-primary-600/30 bg-primary-600/10 px-3 py-1.5">
+      <span class="size-1.5 rounded-full bg-primary2 shadow-glow-sm" />
+      <span class="font-mono text-xs text-primary2">
+        <span data-lang-content="en">{HERO_COPY.kicker.en}</span>
+        <span data-lang-content="es">{HERO_COPY.kicker.es}</span>
+      </span>
+    </div>
+
+    <h1 class="mb-6 font-serif text-[clamp(40px,5.6vw,72px)] leading-[1.02] text-text">
+      <span data-lang-content="en">{HERO_COPY.title.en}</span>
+      <span data-lang-content="es">{HERO_COPY.title.es}</span>
+    </h1>
+
+    <p class="mb-8 max-w-[520px] font-sans text-base leading-relaxed text-muted lg:text-lg">
+      <span data-lang-content="en">{HERO_COPY.subtitle.en}</span>
+      <span data-lang-content="es">{HERO_COPY.subtitle.es}</span>
+    </p>
+
+    <div class="mb-10 flex flex-wrap gap-3">
+      <a href={HERO_COPY.ctaPrimary.href}>
+        <Button variant="primary">
+          <span data-lang-content="en">{HERO_COPY.ctaPrimary.label.en}</span>
+          <span data-lang-content="es">{HERO_COPY.ctaPrimary.label.es}</span>
+        </Button>
+      </a>
+      <a href={HERO_COPY.ctaSecondary.href}>
+        <Button variant="secondary">
+          <span data-lang-content="en">{HERO_COPY.ctaSecondary.label.en}</span>
+          <span data-lang-content="es">{HERO_COPY.ctaSecondary.label.es}</span>
+        </Button>
+      </a>
+    </div>
+
+    <div class="flex flex-wrap gap-[34px]">
+      {
+        HERO_COPY.stats.map((stat, index) => (
+          <>
+            {index > 0 && <span class="w-px self-stretch bg-border2" />}
+            <div>
+              <div class="font-serif text-[34px] leading-none text-primary2">{stat.value}</div>
+              <div class="mt-1 font-mono text-xs text-faint">
+                <span data-lang-content="en">{stat.label.en}</span>
+                <span data-lang-content="es">{stat.label.es}</span>
+              </div>
+            </div>
+          </>
+        ))
+      }
+    </div>
+  </div>
+
+  <div>
+    <HeroTerminal client:visible />
+  </div>
+</div>

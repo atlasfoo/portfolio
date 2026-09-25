@@ -1,0 +1,41 @@
+---
+---
+
+<button
+  type="button"
+  id="lang-toggle"
+  data-lang-toggle
+  aria-label="Toggle language"
+  aria-pressed="false"
+  class="bg-panel border border-border2 rounded-lg px-3 py-1.5"
+>
+  <span data-lang-content="en">ES</span>
+  <span data-lang-content="es">EN</span>
+</button>
+
+<script>
+  import { LANG_STORAGE_KEY } from '../../lib/lang';
+  import { dispatchLangChange, getCurrentLang } from '../../lib/lang-client';
+
+  const button = document.querySelector('[data-lang-toggle]');
+
+  const syncPressedState = () => {
+    button?.setAttribute('aria-pressed', String(getCurrentLang() === 'es'));
+  };
+
+  syncPressedState();
+
+  button?.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-lang');
+    const next = current === 'en' ? 'es' : 'en';
+
+    document.documentElement.setAttribute('data-lang', next);
+    syncPressedState();
+
+    try {
+      localStorage.setItem(LANG_STORAGE_KEY, next);
+    } catch {}
+
+    dispatchLangChange(next);
+  });
+</script>

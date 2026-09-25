@@ -1,0 +1,30 @@
+---
+import { SECTION_COPY } from '../../content/homepage';
+import { SECTION_TITLE_CLASS } from '../../lib/home/layout';
+import ArchitectureDiagram from './ArchitectureDiagram';
+---
+
+<div class="space-y-8">
+  <div class="space-y-3">
+    <p class="font-mono text-xs uppercase tracking-wide text-primary-600">
+      <span data-lang-content="en">{SECTION_COPY.architecture.index} — {SECTION_COPY.architecture.tag.en}</span>
+      <span data-lang-content="es">{SECTION_COPY.architecture.index} — {SECTION_COPY.architecture.tag.es}</span>
+    </p>
+    <h2 class={SECTION_TITLE_CLASS}>
+      <span data-lang-content="en">{SECTION_COPY.architecture.title.en}</span>
+      <span data-lang-content="es">{SECTION_COPY.architecture.title.es}</span>
+    </h2>
+    {
+      SECTION_COPY.architecture.lead && (
+        <p class="max-w-[600px] font-sans text-base leading-relaxed text-muted">
+          <span data-lang-content="en">{SECTION_COPY.architecture.lead.en}</span>
+          <span data-lang-content="es">{SECTION_COPY.architecture.lead.es}</span>
+        </p>
+      )
+    }
+  </div>
+
+  <div class="mt-4 md:mt-8">
+    <ArchitectureDiagram client:visible />
+  </div>
+</div>

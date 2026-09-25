@@ -1,0 +1,82 @@
+---
+import { NAV_LABELS } from '../../content/homepage';
+import { PAGE_CONTAINER_CLASS } from '../../lib/home/layout';
+import LangToggle from '../ui/LangToggle.astro';
+import ThemeToggle from '../ui/ThemeToggle.astro';
+---
+
+<nav class="sticky top-0 z-50 backdrop-blur-[14px] bg-nav border-b border-border2">
+  <div class={`flex items-center justify-between gap-4 py-3 ${PAGE_CONTAINER_CLASS}`}>
+    <div class="flex items-center gap-2.5">
+      <span class="w-[11px] h-[11px] rounded-[3px] bg-primary shadow-[0_0_8px_var(--color-primary)]"></span>
+      <span class="font-mono text-sm text-text">{NAV_LABELS.brand}</span>
+    </div>
+
+    <div class="hidden md:flex items-center gap-6">
+      <ul class="flex items-center gap-5">
+        {
+          NAV_LABELS.links.map((link) => (
+            // biome-ignore lint/correctness/useJsxKeyInIterable: Astro has no vdom reconciliation; native <li> has no key slot.
+            <li>
+              <a href={link.href} class="font-mono text-muted text-xs hover:text-text">
+                <span data-lang-content="en">{link.label.en}</span>
+                <span data-lang-content="es">{link.label.es}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="flex items-center gap-3">
+        <span class="w-px h-[18px] bg-border2"></span>
+        <div class="inline-flex items-center gap-2">
+          <div class="w-[7px] h-[7px] bg-success-400 rounded-full shadow-[0_0_8px_var(--color-success-400)]"></div>
+          <span class="font-mono text-muted text-xs">
+            <span data-lang-content="en">{NAV_LABELS.status.en}</span>
+            <span data-lang-content="es">{NAV_LABELS.status.es}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <LangToggle />
+      <ThemeToggle />
+
+      <details class="relative md:hidden" data-nav-mobile-menu>
+        <summary
+          aria-label="Menu"
+          class="flex h-8 w-8 cursor-pointer list-none items-center justify-center rounded-lg border border-border2 bg-panel [&::-webkit-details-marker]:hidden"
+        >
+          <span aria-hidden="true" class="flex flex-col gap-[3px]">
+            <span class="block h-px w-4 bg-body"></span>
+            <span class="block h-px w-4 bg-body"></span>
+            <span class="block h-px w-4 bg-body"></span>
+          </span>
+        </summary>
+        <div class="absolute right-0 top-[calc(100%+10px)] flex w-[220px] flex-col gap-4 rounded-xl border border-border2 bg-nav p-4 shadow-[0_20px_50px_rgba(0,0,0,0.4)] backdrop-blur-[14px]">
+          <ul class="flex flex-col gap-3">
+            {
+              NAV_LABELS.links.map((link) => (
+                // biome-ignore lint/correctness/useJsxKeyInIterable: Astro has no vdom reconciliation; native <li> has no key slot.
+                <li>
+                  <a href={link.href} class="font-mono text-muted text-xs hover:text-text">
+                    <span data-lang-content="en">{link.label.en}</span>
+                    <span data-lang-content="es">{link.label.es}</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <div class="flex items-center gap-2 border-t border-border2 pt-3">
+            <div class="w-[7px] h-[7px] bg-success-400 rounded-full shadow-[0_0_8px_var(--color-success-400)]"></div>
+            <span class="font-mono text-muted text-xs">
+              <span data-lang-content="en">{NAV_LABELS.status.en}</span>
+              <span data-lang-content="es">{NAV_LABELS.status.es}</span>
+            </span>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,48 @@
+---
+import { SECTION_COPY, STACK_GROUPS } from '../../content/homepage';
+import { SECTION_TITLE_CLASS } from '../../lib/home/layout';
+import Chip from '../ui/Chip.astro';
+---
+
+<div class="space-y-8">
+  <div class="space-y-3">
+    <p class="font-mono text-xs uppercase tracking-wide text-primary-600">
+      <span data-lang-content="en">{SECTION_COPY.stack.index} — {SECTION_COPY.stack.tag.en}</span>
+      <span data-lang-content="es">{SECTION_COPY.stack.index} — {SECTION_COPY.stack.tag.es}</span>
+    </p>
+    <h2 class={SECTION_TITLE_CLASS}>
+      <span data-lang-content="en">{SECTION_COPY.stack.title.en}</span>
+      <span data-lang-content="es">{SECTION_COPY.stack.title.es}</span>
+    </h2>
+    {
+      SECTION_COPY.stack.lead && (
+        <p class="max-w-[600px] font-sans text-base leading-relaxed text-muted">
+          <span data-lang-content="en">{SECTION_COPY.stack.lead.en}</span>
+          <span data-lang-content="es">{SECTION_COPY.stack.lead.es}</span>
+        </p>
+      )
+    }
+  </div>
+
+  <div class="grid grid-cols-[repeat(auto-fit,minmax(210px,1fr))] gap-5">
+    {
+      STACK_GROUPS.map((group) => (
+        // biome-ignore lint/correctness/useJsxKeyInIterable: Astro has no vdom reconciliation; native element has no key slot.
+        <section class="space-y-3 border-l border-border2 pl-[18px]">
+          <div class="font-mono text-[11px] uppercase tracking-[0.05em] text-faint mb-3">
+            <span data-lang-content="en" set:html={group.label.en} />
+            <span data-lang-content="es" set:html={group.label.es} />
+          </div>
+          <div class="flex flex-wrap gap-2">
+            {
+              group.items.map((item) => (
+                // biome-ignore lint/correctness/useJsxKeyInIterable: Astro has no vdom reconciliation; native element has no key slot.
+                <Chip>{item}</Chip>
+              ))
+            }
+          </div>
+        </section>
+      ))
+    }
+  </div>
+</div>
