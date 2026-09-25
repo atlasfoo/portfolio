@@ -3,7 +3,7 @@ type: scope
 title: "Scope"
 description: "Homepage, project showcase and blog content; excludes any backend, auth, or server-side persistence."
 tags: [identity, scope, boundaries]
-updated: "2026-08-13"
+updated: "2026-09-25"
 ---
 
 # Scope
@@ -28,5 +28,5 @@ Single unit.
 
 ## Relations
 
-None — no reference concepts currently draw an external boundary for this
-project.
+- Infrastructure: [Cloudflare](../references/cloudflare.md) — the
+  Worker (Workers Static Assets) the built site runs on.

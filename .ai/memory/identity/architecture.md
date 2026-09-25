@@ -3,7 +3,7 @@ type: architecture
 title: "Architecture"
 description: "Static site built with Astro 7, React 19 islands, and Tailwind CSS v4; no backend or datastore."
 tags: [identity, architecture, stack]
-updated: "2026-08-13"
+updated: "2026-09-25"
 ---
 
 # Architecture
@@ -28,6 +28,13 @@ updated: "2026-08-13"
   - `@commitlint/*`, `commitizen` — Conventional Commits enforcement and
     authoring
   - `commit-and-tag-version` — changelog/version/tag automation
+  - `@pulumi/pulumi`, `@pulumi/cloudflare` — infrastructure-as-code for
+    the deploy target (`infra/`; see
+    [references/pulumi.md](../references/pulumi.md),
+    [references/cloudflare.md](../references/cloudflare.md))
+  - `wrangler` — publishes the built site's content to the Cloudflare
+    Worker (see [decisions/004](../decisions/004-pulumi-wrangler-boundary.md)
+    for the split with Pulumi)
 - **Package manager:** bun (`bun.lock` present; use `bun`, not `npm`/`node`,
   for all scripts in this repo)
 
