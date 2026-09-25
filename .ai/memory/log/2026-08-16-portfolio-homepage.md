@@ -85,7 +85,7 @@ architecture diagram) closing the one criterion that started open.
 **Proposed ADR-003 — Bilingual toggle mirrors the theme-toggle attribute
 pattern.** *(status: Proposed)*
 - **Context**: the homepage needed a persisted, FOUC-free, client-only
-  language preference. [ADR-002](../memory/decisions/002-semantic-theme-tokens.md)
+  language preference. [ADR-002](../decisions/002-semantic-theme-tokens.md)
   already established the shape for a similar problem (theme).
 - **Decision**: `data-lang` on `<html>`, set by an inline init script before
   first paint, persisted to `localStorage`, flipped by a toggle component
@@ -105,7 +105,7 @@ gotchas under "Decisions and deviations" above, so the next person touching
 `hover:-translate-y-*` transitions or a multi-layer `bg-[...]` utility
 doesn't lose the same afternoon rediscovering them.
 
-No new `reference` concept — [Imported design specs](../memory/references/design-specs.md)
+No new `reference` concept — [Imported design specs](../references/design-specs.md)
 already covers the mock as source of truth; nothing else was consulted that
 the brain doesn't already index.
 
