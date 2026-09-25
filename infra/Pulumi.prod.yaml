@@ -1,0 +1,8 @@
+config:
+  portfolio-infra:zoneId: "61168f6c56e78ed5705e50a1aa811265"
+  portfolio-infra:hostname: "atlasfoo.dev"
+  portfolio-infra:workerName: "atlasfoo-portfolio-worker"
+  cloudflare:apiToken:
+    secure: v1:PbJFG3mdVvt830da:0oR1psQOOFk0FHjEtFxlfaVz2KGJ+bFzWhHYj32a9k7pKIx/Ad/mxISWVj39juSUrbzzQYzv8qudG9+UUg75dyWfdyLL
+  portfolio-infra:accountId: 1bf3edc40105fc84a5f90018e9d93a73
+encryptionsalt: v1:/IpRvorZcl4=:v1:vEKlrY/ViQp8ZB+W:EcADM3rNeyG7jWFy+J+oft+b7vS2Og==

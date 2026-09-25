@@ -1,0 +1,3 @@
+name: portfolio-infra
+runtime: nodejs
+description: Cloudflare Workers static-assets hosting for the portfolio site (Pulumi + TypeScript)

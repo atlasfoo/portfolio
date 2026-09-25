@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Must match `portfolio-infra:workerName` in infra/Pulumi.prod.yaml —
+  // both name the same Worker; Pulumi owns the container, wrangler owns
+  // the deploys. See infra/README.md § Frontera Pulumi ↔ wrangler.
+  "name": "atlasfoo-portfolio-worker",
+  "compatibility_date": "2026-09-22",
+  "assets": {
+    "directory": "./dist"
+  }
+}
