@@ -1,0 +1,16 @@
+---
+interface Props {
+  variant?: "neutral" | "accent";
+}
+
+const { variant = "neutral" } = Astro.props;
+
+const variantClasses =
+  variant === "accent"
+    ? "border border-[rgba(47,107,255,0.22)] bg-[rgba(47,107,255,0.08)]"
+    : "border border-border2 bg-panel";
+---
+
+<span class={`font-mono text-muted ${variantClasses} rounded-lg px-3 py-1.5 text-xs`}>
+  <slot />
+</span>

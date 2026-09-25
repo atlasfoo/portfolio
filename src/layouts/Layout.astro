@@ -1,15 +1,34 @@
-import '../styles/index.css'
+---
+import { Font } from 'astro:assets';
+import { buildLangInitScript } from '../lib/lang';
+import { buildThemeInitScript } from '../lib/theme';
+import '../styles/global.css';
 
-<html lang="en">
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<html lang="en" data-theme="dark" data-lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="generator" content={Astro.generator} />
-    <title>Astro Basics</title>
+    {description && <meta name="description" content={description} />}
+    <title>{title}</title>
+    <Font cssVariable="--font-instrument-serif" />
+    <Font cssVariable="--font-space-grotesk" preload />
+    <Font cssVariable="--font-jetbrains-mono" preload />
+    <script is:inline set:html={buildThemeInitScript()} />
+    <script is:inline set:html={buildLangInitScript()} />
   </head>
   <body>
+    <div data-glow-layer aria-hidden="true"></div>
     <slot />
   </body>
 </html>
@@ -20,5 +39,16 @@ import '../styles/index.css'
     margin: 0;
     width: 100%;
     height: 100%;
+  }
+
+  [data-glow-layer] {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(900px 620px at 10% -8%, var(--glow1), transparent 60%),
+      radial-gradient(820px 600px at 102% -2%, var(--glow2), transparent 55%),
+      var(--bg);
   }
 </style>

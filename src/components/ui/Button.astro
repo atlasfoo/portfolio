@@ -1,0 +1,19 @@
+---
+interface Props {
+  variant?: "primary" | "secondary";
+}
+
+const { variant = "primary" } = Astro.props;
+
+const variantClasses =
+  variant === "secondary"
+    ? "text-subtle bg-panel border border-border2 hover:bg-panel2"
+    : "bg-primary-600 text-white shadow-cta hover:bg-primary-hover";
+---
+
+<button
+  type="button"
+  class={`font-sans font-semibold text-sm rounded-lg px-6 py-3 ${variantClasses}`}
+>
+  <slot />
+</button>
