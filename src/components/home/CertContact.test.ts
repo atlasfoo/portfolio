@@ -18,12 +18,58 @@ test('renders the AWS cert badge and name', async () => {
   const container = await AstroContainer.create();
   const result = await container.renderToString(CertContact);
 
-  // Badge tile — "AWS" over "CERTIFIED", not bilingual.
-  expect(result).toContain('AWS');
-  expect(result).toContain('CERTIFIED');
+  // Badge: the real image when `public/certs/<file>` exists, otherwise the
+  // generated "AWS" / "CERTIFIED" gradient tile.
+  const hasImage = /<img[^>]+src="\/certs\//.test(result);
+  const hasTile =
+    /size-\[74px\][^"]*rounded-\[14px\]/.test(result) &&
+    result.includes('linear-gradient(145deg,#2F6BFF,#1b3fa8)') &&
+    result.includes('CERTIFIED');
+  expect(hasImage || hasTile).toBe(true);
 
   // Proper noun, not bilingual.
   expect(result).toContain('AWS Certified Solutions Architect');
+});
+
+test('renders issue and expiry dates with machine-readable datetimes', async () => {
+  const container = await AstroContainer.create();
+  const result = await container.renderToString(CertContact);
+
+  expect(result).toContain('<time datetime="2024-03-15">2024-03</time>');
+  expect(result).toContain('<time datetime="2027-03-15">2027-03</time>');
+
+  // Bilingual labels, both rendered inline for CSS to toggle.
+  expect(result).toContain('Emitido');
+  expect(result).toContain('Issued');
+  expect(result).toContain('Vence');
+  expect(result).toContain('Expires');
+});
+
+test('omits the remote credential link when none is configured', async () => {
+  const container = await AstroContainer.create();
+  const result = await container.renderToString(CertContact);
+
+  expect(result).not.toContain('View credential');
+  expect(result).not.toContain('Ver credencial');
+});
+
+test('renders the remote credential link when provided', async () => {
+  const container = await AstroContainer.create();
+  const href = 'https://www.credly.com/badges/abc-123';
+  const result = await container.renderToString(CertContact, {
+    props: {
+      credential: {
+        label: { en: 'View credential', es: 'Ver credencial' },
+        href,
+      },
+    },
+  });
+
+  const tag = anchorTagFor(result, href);
+  expect(tag).toContain('target="_blank"');
+  expect(tag).toContain('rel="noopener"');
+  expect(result).toContain('View credential');
+  expect(result).toContain('Ver credencial');
 });
 
 test('renders both language variants of the cert tag', async () => {
@@ -103,8 +149,12 @@ test("cert badge matches the mock's exact gradient tile and copy hierarchy", asy
   const container = await AstroContainer.create();
   const result = await container.renderToString(CertContact);
 
-  expect(result).toMatch(/size-\[74px\][^"]*rounded-\[14px\]/);
-  expect(result).toContain('linear-gradient(145deg,#2F6BFF,#1b3fa8)');
+  // Only assert the generated tile when no badge image is present; with an
+  // image in `public/certs/` the `<img>` variant replaces it by design.
+  if (!/<img[^>]+src="\/certs\//.test(result)) {
+    expect(result).toMatch(/size-\[74px\][^"]*rounded-\[14px\]/);
+    expect(result).toContain('linear-gradient(145deg,#2F6BFF,#1b3fa8)');
+  }
   expect(result).toMatch(
     /<[^>]*text-\[17px\][^>]*>AWS Certified Solutions Architect/,
   );

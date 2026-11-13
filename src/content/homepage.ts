@@ -795,18 +795,50 @@ export const TERMINAL_LINES: readonly TerminalLine[] = [
 
 export interface CertCopy {
   tag: Bilingual;
-  /** Badge tile text — "AWS" over "CERTIFIED". */
+  /**
+   * Badge tile text — "AWS" over "CERTIFIED". Rendered only when no badge
+   * image is found under `public/certs/` (see `image`).
+   */
   badge: { top: string; bottom: string };
+  /**
+   * Badge image inside `public/certs/`, either `/certs/<file>` or `<file>`.
+   * If the file is missing at build time the generated gradient tile is
+   * rendered instead.
+   */
+  image?: string;
   /** Certification name; not translated. */
   name: string;
   issuer: string;
+  /** Bilingual labels for the validity dates. */
+  dates: { issued: Bilingual; expires: Bilingual };
+  /**
+   * Validity as ISO `YYYY-MM-DD` (as printed on the certificate), rendered as
+   * `YYYY-MM`. Omit either to hide that line.
+   */
+  issued?: string;
+  expires?: string;
+  /**
+   * Remote credential (Credly / AWS certification page). Omitted → no link is
+   * rendered.
+   */
+  credential?: { label: Bilingual; href: string };
 }
 
 export const CERT_COPY: CertCopy = {
   tag: { es: 'CERTIFICACIÓN', en: 'CERTIFICATION' },
   badge: { top: 'AWS', bottom: 'CERTIFIED' },
+  image: '/certs/aws-certified-solutions-architect.png',
   name: 'AWS Certified Solutions Architect',
   issuer: 'Amazon Web Services',
+  dates: {
+    issued: { es: 'Emitido', en: 'Issued' },
+    expires: { es: 'Vence', en: 'Expires' },
+  },
+  issued: '2024-03-15',
+  expires: '2027-03-15',
+  // Fill with the real badge URL before publishing, e.g.
+  // { label: { es: 'Ver credencial', en: 'View credential' },
+  //   href: 'https://www.credly.com/badges/<id>' },
 };
 
 /* ------------------------------------------------------------------ */
