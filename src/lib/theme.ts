@@ -2,8 +2,12 @@ export const THEME_STORAGE_KEY = 'theme';
 
 export type Theme = 'dark' | 'light';
 
-export function getInitialTheme(stored: string | null): Theme {
-  return stored === 'light' ? 'light' : 'dark';
+export function getInitialTheme(
+  stored: string | null,
+  systemPreference: string | null = null,
+): Theme {
+  if (stored === 'light' || stored === 'dark') return stored;
+  return systemPreference === 'light' ? 'light' : 'dark';
 }
 
 /**
@@ -18,7 +22,11 @@ export function buildThemeInitScript(): string {
     var KEY = ${JSON.stringify(THEME_STORAGE_KEY)};
     var getInitialTheme = ${getInitialTheme.toString()};
     var stored = null;
+    var systemPreference = null;
     try { stored = localStorage.getItem(KEY); } catch (e) {}
-    document.documentElement.setAttribute('data-theme', getInitialTheme(stored));
+    try {
+      systemPreference = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    } catch (e) {}
+    document.documentElement.setAttribute('data-theme', getInitialTheme(stored, systemPreference));
   })();`;
 }
