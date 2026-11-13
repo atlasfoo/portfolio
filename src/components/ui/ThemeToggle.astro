@@ -9,7 +9,8 @@
   aria-pressed="false"
   class="bg-panel border border-border2 rounded-lg px-3 py-1.5"
 >
-  <span aria-hidden="true">&#8728;</span>
+  <span aria-hidden="true" data-theme-icon="light" hidden>&#9728;</span>
+  <span aria-hidden="true" data-theme-icon="dark">&#9790;</span>
 </button>
 
 <script>
@@ -20,6 +21,8 @@
   const syncPressedState = () => {
     const isLight = document.documentElement.getAttribute('data-theme') === 'light';
     button?.setAttribute('aria-pressed', String(isLight));
+    button?.querySelector('[data-theme-icon="light"]')?.toggleAttribute('hidden', !isLight);
+    button?.querySelector('[data-theme-icon="dark"]')?.toggleAttribute('hidden', isLight);
   };
 
   syncPressedState();
