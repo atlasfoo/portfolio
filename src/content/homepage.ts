@@ -218,8 +218,17 @@ export const SECTION_COPY: SectionCopy = {
 /* Architecture diagram                                                */
 /* ------------------------------------------------------------------ */
 
-/** Vertical column the node sits in; matches the mock's column captions. */
-export type ArchitectureLayer = 'client' | 'edge' | 'services' | 'state';
+/** Vertical column the node sits in; matches the diagram's column captions. */
+export type ArchitectureLayer = 'dependencies' | 'services' | 'apps' | 'actors';
+
+export type ArchitectureNodeIcon =
+  | 'user'
+  | 'user-tie'
+  | 'circle-nodes'
+  | 'app'
+  | 'api'
+  | 'business'
+  | 'dependencies';
 
 export interface ArchitectureLayerCaption {
   id: ArchitectureLayer;
@@ -230,10 +239,10 @@ export interface ArchitectureLayerCaption {
 }
 
 export const ARCHITECTURE_LAYERS: readonly ArchitectureLayerCaption[] = [
-  { id: 'client', label: 'client', x: 8 },
-  { id: 'edge', label: 'edge', x: 32 },
-  { id: 'services', label: 'services', x: 57 },
-  { id: 'state', label: 'state', x: 86 },
+  { id: 'dependencies', label: 'dependencies', x: 11 },
+  { id: 'services', label: 'services', x: 37 },
+  { id: 'apps', label: 'apps / api', x: 63 },
+  { id: 'actors', label: 'actors', x: 89 },
 ];
 
 export interface ArchitectureNode {
@@ -244,6 +253,8 @@ export interface ArchitectureNode {
   y: number;
   /** Status-dot hex from the mock; components may map it to a token. */
   dotColor: string;
+  /** FontAwesome-aligned icon type. */
+  icon: ArchitectureNodeIcon;
   /** Node title. */
   label: Bilingual;
   /** Monospace sub-label under the title. */
@@ -254,120 +265,110 @@ export interface ArchitectureNode {
 
 export const ARCHITECTURE_NODES: readonly ArchitectureNode[] = [
   {
-    id: 'web',
-    layer: 'client',
-    x: 8,
-    y: 24,
+    id: 'u',
+    layer: 'actors',
+    x: 89,
+    y: 20,
     dotColor: '#5B8CFF',
-    label: { es: 'Web', en: 'Web' },
-    subtitle: { es: 'Next.js · React', en: 'Next.js · React' },
+    icon: 'user',
+    label: { es: 'Usuario', en: 'User' },
+    subtitle: {
+      es: 'Clientes · Canal digital',
+      en: 'Customers · Digital channel',
+    },
     description: {
-      es: 'Aplicaciones web rápidas y accesibles, renderizadas en el borde para sentirse instantáneas.',
-      en: 'Fast, accessible web apps rendered at the edge so they feel instant.',
+      es: 'Usuarios y clientes finales que interactúan con la plataforma mediante aplicaciones web y móviles para consultar información, realizar operaciones y consumir servicios digitales.',
+      en: 'End users and customers interacting with the platform through web and mobile apps to query information, perform transactions, and consume digital services.',
     },
   },
   {
-    id: 'mobile',
-    layer: 'client',
-    x: 8,
+    id: 'e',
+    layer: 'actors',
+    x: 89,
+    y: 50,
+    dotColor: '#5B8CFF',
+    icon: 'user-tie',
+    label: { es: 'Empleado', en: 'Employee' },
+    subtitle: { es: 'Operaciones · Backoffice', en: 'Operations · Backoffice' },
+    description: {
+      es: 'Personal operativo, ejecutivos y analistas internos que gestionan flujos de negocio, autorizaciones, soporte y administración mediante portales internos.',
+      en: 'Operations staff, managers, and internal analysts managing business workflows, approvals, support, and administration through internal portals.',
+    },
+  },
+  {
+    id: 'i',
+    layer: 'actors',
+    x: 89,
+    y: 80,
+    dotColor: '#6B8BFF',
+    icon: 'circle-nodes',
+    label: { es: 'Integradores', en: 'Integrators' },
+    subtitle: { es: 'Partners · Open Banking', en: 'Partners · Open Banking' },
+    description: {
+      es: 'Sistemas externos, comercios aliados, pasarelas de pago y entidades financieras que se conectan de forma automatizada mediante contratos de integración seguros.',
+      en: 'External systems, partner merchants, payment gateways, and financial institutions connecting programmatically via secure integration contracts.',
+    },
+  },
+  {
+    id: 'a',
+    layer: 'apps',
+    x: 63,
+    y: 35,
+    dotColor: '#2F6BFF',
+    icon: 'app',
+    label: { es: 'Aplicación', en: 'Application' },
+    subtitle: { es: 'Frontend · Web & Mobile', en: 'Frontend · Web & Mobile' },
+    description: {
+      es: 'Capa de aplicaciones cliente: portales web responsivos y apps móviles que encapsulan la experiencia de usuario y consumen los servicios del negocio.',
+      en: 'Client application tier: responsive web portals and mobile applications delivering the user experience and consuming business services.',
+    },
+  },
+  {
+    id: 'ap',
+    layer: 'apps',
+    x: 63,
     y: 72,
-    dotColor: '#5B8CFF',
-    label: { es: 'Mobile', en: 'Mobile' },
-    subtitle: { es: 'React Native', en: 'React Native' },
-    description: {
-      es: 'Una sola base de código que llega a iOS y Android sin duplicar el esfuerzo.',
-      en: 'A single codebase shipping to iOS and Android without duplicating effort.',
-    },
-  },
-  {
-    id: 'gw',
-    layer: 'edge',
-    x: 32,
-    y: 48,
     dotColor: '#2F6BFF',
-    label: { es: 'API Gateway', en: 'API Gateway' },
-    subtitle: { es: 'Auth · Rate limit', en: 'Auth · Rate limit' },
+    icon: 'api',
+    label: { es: 'API', en: 'API' },
+    subtitle: {
+      es: 'Gateway · Auth & Routing',
+      en: 'Gateway · Auth & Routing',
+    },
     description: {
-      es: 'Punto de entrada único: autenticación, límites de tráfico y enrutamiento a cada servicio.',
-      en: 'A single entry point: authentication, throttling and routing to each service.',
+      es: 'Punto de entrada seguro para tráfico programático e integraciones: autenticación mTLS/OAuth2, validación de esquemas, rate limiting y enrutamiento.',
+      en: 'Secure gateway for programmatic traffic and integrations: mTLS/OAuth2 authentication, schema validation, rate limiting, and routing.',
     },
   },
   {
-    id: 'pagos',
+    id: 'negocio',
     layer: 'services',
-    x: 57,
-    y: 18,
-    dotColor: '#6B8BFF',
-    label: { es: 'Pagos', en: 'Payments' },
-    subtitle: { es: '.NET · FastAPI', en: '.NET · FastAPI' },
-    description: {
-      es: 'Aceptación de pagos con conciliación y reintentos idempotentes: cobrar bien, siempre.',
-      en: 'Payment acceptance with reconciliation and idempotent retries: charge right, every time.',
-    },
-  },
-  {
-    id: 'tarjetas',
-    layer: 'services',
-    x: 57,
-    y: 48,
-    dotColor: '#2F6BFF',
-    label: { es: 'Tarjetas', en: 'Cards' },
-    subtitle: { es: 'Emisión · Control', en: 'Issuing · Control' },
-    description: {
-      es: 'Core de emisión y control de medios de pago operando a escala regional.',
-      en: 'A card issuing and control core operating at regional scale.',
-    },
-  },
-  {
-    id: 'openb',
-    layer: 'services',
-    x: 57,
-    y: 78,
-    dotColor: '#6B8BFF',
-    label: { es: 'Open Banking', en: 'Open Banking' },
-    subtitle: { es: 'Integraciones', en: 'Integrations' },
-    description: {
-      es: 'Integraciones de terceros con plataformas bancarias, bajo estándar y con seguridad.',
-      en: 'Third-party integrations with banking platforms — by the standard, and secure.',
-    },
-  },
-  {
-    id: 'pg',
-    layer: 'state',
-    x: 86,
-    y: 22,
-    dotColor: '#7AA0FF',
-    label: { es: 'PostgreSQL', en: 'PostgreSQL' },
-    subtitle: { es: 'Datos', en: 'Data' },
-    description: {
-      es: 'Persistencia transaccional con réplicas de lectura para escalar sin perder consistencia.',
-      en: 'Transactional persistence with read replicas to scale without losing consistency.',
-    },
-  },
-  {
-    id: 'bus',
-    layer: 'state',
-    x: 86,
+    x: 37,
     y: 50,
     dotColor: '#7AA0FF',
-    label: { es: 'Event Bus', en: 'Event Bus' },
-    subtitle: { es: 'Async', en: 'Async' },
+    icon: 'business',
+    label: { es: 'Negocio', en: 'Business' },
+    subtitle: { es: 'Core · Lógica de dominio', en: 'Core · Domain logic' },
     description: {
-      es: 'Comunicación asíncrona entre servicios: desacoplada, resiliente y lista para fallar bien.',
-      en: 'Async communication between services: decoupled, resilient and ready to fail gracefully.',
+      es: 'Capa central de servicios y lógica de dominio: orquestación de reglas comerciales, conciliación, validación de estados y procesamiento transaccional.',
+      en: 'Core domain services and business logic: business rule orchestration, reconciliation, state validation, and transactional processing.',
     },
   },
   {
-    id: 'obs',
-    layer: 'state',
-    x: 86,
-    y: 80,
+    id: 'dependencias',
+    layer: 'dependencies',
+    x: 11,
+    y: 50,
     dotColor: '#9BB6FF',
-    label: { es: 'Observabilidad', en: 'Observability' },
-    subtitle: { es: 'Trazas · Métricas', en: 'Traces · Metrics' },
+    icon: 'dependencies',
+    label: { es: 'Dependencias', en: 'Dependencies' },
+    subtitle: {
+      es: 'Bases de datos · Mensajería · Ext.',
+      en: 'Databases · Messaging · Ext.',
+    },
     description: {
-      es: 'Visibilidad de punta a punta: logs, métricas y trazas para saber qué pasa antes que el usuario.',
-      en: 'End-to-end visibility: logs, metrics and traces — you know before the user does.',
+      es: 'Infraestructura de soporte y persistencia: bases de datos relacionales y documentales, colas de mensajería asíncronas y servicios externos especializados.',
+      en: 'Supporting infrastructure and persistence: relational and document databases, asynchronous messaging queues, and specialized external services.',
     },
   },
 ];
@@ -376,21 +377,16 @@ export const ARCHITECTURE_NODES: readonly ArchitectureNode[] = [
 export type ArchitectureConnection = [string, string];
 
 export const ARCHITECTURE_CONNECTIONS: readonly ArchitectureConnection[] = [
-  ['web', 'gw'],
-  ['mobile', 'gw'],
-  ['gw', 'pagos'],
-  ['gw', 'tarjetas'],
-  ['gw', 'openb'],
-  ['pagos', 'bus'],
-  ['tarjetas', 'pg'],
-  ['tarjetas', 'bus'],
-  ['openb', 'bus'],
-  ['bus', 'obs'],
-  ['pg', 'obs'],
+  ['u', 'a'],
+  ['e', 'a'],
+  ['i', 'ap'],
+  ['a', 'negocio'],
+  ['ap', 'negocio'],
+  ['negocio', 'dependencias'],
 ];
 
 /** Node selected on first render (the mock's initial `active` state). */
-export const DEFAULT_ARCHITECTURE_NODE_ID = 'tarjetas';
+export const DEFAULT_ARCHITECTURE_NODE_ID = 'negocio';
 
 /* ------------------------------------------------------------------ */
 /* Capabilities                                                        */

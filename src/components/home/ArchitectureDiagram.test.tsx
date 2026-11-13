@@ -94,7 +94,7 @@ describe('ArchitectureDiagram', () => {
   test('a node button is a real <button>, reachable by Tab', () => {
     render(<ArchitectureDiagram />);
 
-    const button = screen.getByTestId('arch-node-pagos');
+    const button = screen.getByTestId('arch-node-a');
     expect(button.tagName).toBe('BUTTON');
   });
 
@@ -102,49 +102,49 @@ describe('ArchitectureDiagram', () => {
     const user = userEvent.setup();
     render(<ArchitectureDiagram />);
 
-    await user.click(screen.getByTestId('arch-node-pagos'));
+    await user.click(screen.getByTestId('arch-node-a'));
 
-    expectNodeActive('pagos');
+    expectNodeActive('a');
   });
 
   test('Tab-ing to a node button and pressing Enter updates state the same way a click does', async () => {
     const user = userEvent.setup();
     render(<ArchitectureDiagram />);
 
-    await tabToNode(user, 'arch-node-gw');
+    await tabToNode(user, 'arch-node-ap');
     await user.keyboard('{Enter}');
 
-    expectNodeActive('gw');
+    expectNodeActive('ap');
   });
 
   test('Tab-ing to a node button and pressing Space updates state the same way a click does', async () => {
     const user = userEvent.setup();
     render(<ArchitectureDiagram />);
 
-    await tabToNode(user, 'arch-node-openb');
+    await tabToNode(user, 'arch-node-u');
     await user.keyboard(' ');
 
-    expectNodeActive('openb');
+    expectNodeActive('u');
   });
 
   test('re-renders the detail panel with the active node text on langchange', async () => {
     const user = userEvent.setup();
     render(<ArchitectureDiagram />);
 
-    await user.click(screen.getByTestId('arch-node-pagos'));
-    expectNodeActive('pagos', 'en');
+    await user.click(screen.getByTestId('arch-node-a'));
+    expectNodeActive('a', 'en');
 
     act(() => {
       dispatchLangChange('es');
     });
 
-    expectNodeActive('pagos', 'es');
+    expectNodeActive('a', 'es');
   });
 
   test("node label/subtitle/radius match the mock's exact metrics", () => {
     render(<ArchitectureDiagram />);
 
-    const button = screen.getByTestId('arch-node-pagos');
+    const button = screen.getByTestId('arch-node-a');
     expect(button.className).toMatch(/rounded-\[11px\]/);
 
     const label = button.querySelector('.text-\\[12\\.5px\\]');
@@ -215,10 +215,10 @@ describe('ArchitectureDiagram', () => {
       const user = userEvent.setup();
       render(<ArchitectureDiagram />);
 
-      const button = screen.getByTestId('arch-node-mobile-pagos');
+      const button = screen.getByTestId('arch-node-mobile-a');
       await user.click(button);
 
-      const node = getNode('pagos');
+      const node = getNode('a');
       const detail = screen.getByTestId('arch-detail-mobile');
       expect(detail.textContent ?? '').toContain(node.description.en);
       expect(button.getAttribute('aria-pressed')).toBe('true');

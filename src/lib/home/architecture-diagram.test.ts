@@ -16,8 +16,8 @@ import { lineState, resolveActiveNode } from './architecture-diagram';
 
 describe('resolveActiveNode', () => {
   test('returns the node matching a valid activeId', () => {
-    const node = resolveActiveNode(ARCHITECTURE_NODES, 'pagos');
-    expect(node?.id).toBe('pagos');
+    const node = resolveActiveNode(ARCHITECTURE_NODES, 'a');
+    expect(node?.id).toBe('a');
   });
 
   test('falls back to the default node when activeId is undefined', () => {
@@ -38,11 +38,11 @@ describe('resolveActiveNode', () => {
 
 describe('lineState', () => {
   test('highlights connections touching the active node (as the "from" endpoint)', () => {
-    const states = lineState(ARCHITECTURE_CONNECTIONS, 'gw');
+    const states = lineState(ARCHITECTURE_CONNECTIONS, 'a');
     const touching = states.filter(
       (_: unknown, i: number) =>
-        ARCHITECTURE_CONNECTIONS[i][0] === 'gw' ||
-        ARCHITECTURE_CONNECTIONS[i][1] === 'gw',
+        ARCHITECTURE_CONNECTIONS[i][0] === 'a' ||
+        ARCHITECTURE_CONNECTIONS[i][1] === 'a',
     );
     expect(touching.length).toBeGreaterThan(0);
     for (const state of touching) {
@@ -52,11 +52,11 @@ describe('lineState', () => {
   });
 
   test('dims connections that do not touch the active node', () => {
-    const states = lineState(ARCHITECTURE_CONNECTIONS, 'gw');
+    const states = lineState(ARCHITECTURE_CONNECTIONS, 'a');
     const notTouching = states.filter(
       (_: unknown, i: number) =>
-        ARCHITECTURE_CONNECTIONS[i][0] !== 'gw' &&
-        ARCHITECTURE_CONNECTIONS[i][1] !== 'gw',
+        ARCHITECTURE_CONNECTIONS[i][0] !== 'a' &&
+        ARCHITECTURE_CONNECTIONS[i][1] !== 'a',
     );
     expect(notTouching.length).toBeGreaterThan(0);
     for (const state of notTouching) {
@@ -66,13 +66,13 @@ describe('lineState', () => {
   });
 
   test('a connection with neither endpoint active is dimmed', () => {
-    const [states] = lineState([['pagos', 'bus']], 'tarjetas');
+    const [states] = lineState([['u', 'a']], 'negocio');
     expect(states).toEqual({ stroke: 'rgba(120,140,200,0.22)', width: 1.1 });
   });
 
   test('a connection is highlighted when the active node is either endpoint', () => {
-    const [fromActive] = lineState([['tarjetas', 'pg']], 'tarjetas');
-    const [toActive] = lineState([['pg', 'tarjetas']], 'tarjetas');
+    const [fromActive] = lineState([['negocio', 'dependencias']], 'negocio');
+    const [toActive] = lineState([['dependencias', 'negocio']], 'negocio');
     expect(fromActive).toEqual({ stroke: 'rgba(91,140,255,0.95)', width: 2 });
     expect(toActive).toEqual({ stroke: 'rgba(91,140,255,0.95)', width: 2 });
   });
