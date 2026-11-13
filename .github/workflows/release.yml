@@ -44,7 +44,23 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Check for releasable commits
+        id: release-check
+        run: |
+          # Match the release tool's window: commits since the last stable tag,
+          # including commits that have only appeared in prereleases.
+          last_tag="$(git describe --tags --match 'v[0-9]*' --exclude '*-*' --abbrev=0 2>/dev/null || true)"
+          range="${last_tag:+${last_tag}..}HEAD"
+          messages="$(git log --format=%B "$range")"
+          if grep -Eq '^(feat|feature|fix)(\([^)]*\))?: |^[[:alnum:]_-]+(\([^)]*\))?!: |^BREAKING[ -]CHANGE: ' <<< "$messages"; then
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+            echo "No releasable commits since the last stable tag — skipping release."
+          fi
+
       - name: Configure git identity
+        if: steps.release-check.outputs.needed == 'true'
         env:
           APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
         run: |
@@ -52,23 +68,22 @@ jobs:
           git config user.email "${APP_SLUG}[bot]@users.noreply.github.com"
 
       - name: Capture pre-bump HEAD
+        if: steps.release-check.outputs.needed == 'true'
         id: pre-bump
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Bump version, changelog, and tag
+        if: steps.release-check.outputs.needed == 'true'
         run: bun run release
 
       - name: Check whether a release was created
         id: released
         env:
           PRE_BUMP_SHA: ${{ steps.pre-bump.outputs.sha }}
+          RELEASE_NEEDED: ${{ steps.release-check.outputs.needed }}
         run: |
-          # commit-and-tag-version no-ops (exit 0, HEAD unchanged) when
-          # every commit since the last tag is a non-releasable type
-          # (chore/docs/ci/style/test/build/refactor) — no feat/fix/perf/
-          # BREAKING CHANGE to bump for. Detect that here instead of
-          # assuming a release always happened.
-          if [ "$(git rev-parse HEAD)" = "$PRE_BUMP_SHA" ]; then
+          # Also keep the HEAD check in case the release tool declines a bump.
+          if [ "$RELEASE_NEEDED" != "true" ] || [ "$(git rev-parse HEAD)" = "$PRE_BUMP_SHA" ]; then
             echo "No releasable commits since the last tag — nothing to bump."
             echo "released=false" >> "$GITHUB_OUTPUT"
           else
