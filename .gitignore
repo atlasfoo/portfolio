@@ -28,3 +28,4 @@ pnpm-debug.log*
 
 # downloaded actionlint binary (scripts/ensure-actionlint.sh)
 .bin/
+.tgrep/
