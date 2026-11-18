@@ -59,4 +59,10 @@ describe('Layout', () => {
     const result = await render({ title: 'Jerry Mejía' });
     expect(result).toContain('page content');
   });
+
+  test('links favicon.svg and does not link favicon.ico', async () => {
+    const result = await render({ title: 'Jerry Mejía' });
+    expect(result).toContain('href="/favicon.svg"');
+    expect(result).not.toContain('favicon.ico');
+  });
 });

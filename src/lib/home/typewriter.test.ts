@@ -11,7 +11,7 @@ import { classifyLine, prefersReducedMotion, stepReveal } from './typewriter';
  *  - `classifyLine(line: string): TerminalTone` — ports the design mock's
  *    `colorTerm()` line-by-line classifier. Precedence, in order:
  *    `$`-prefixed → 'prompt'; contains '✓' → 'success'; contains
- *    'jerry_mejia' → 'identity'; contains a production/growing keyword
+ *    'atlasfoo' → 'identity'; contains a production/growing keyword
  *    (EN or ES) → 'highlight'; otherwise → 'muted'.
  *  - `stepReveal(index: number, rng: () => number): number` — ports the
  *    mock's typing-tick step size: `i += rng() < 0.12 ? 2 : 1`. Pure and
@@ -30,8 +30,10 @@ describe('classifyLine', () => {
     expect(classifyLine('deploy complete ✓')).toBe('success');
   });
 
-  test('a line containing "jerry_mejia" is an identity line', () => {
-    expect(classifyLine('user: jerry_mejia')).toBe('identity');
+  test('a line containing "atlasfoo" is an identity line', () => {
+    expect(classifyLine('Jerry Mejia<atlasfoo> · cloud_architect')).toBe(
+      'identity',
+    );
   });
 
   test('a line containing "production" is a highlight (English)', () => {
@@ -62,12 +64,14 @@ describe('classifyLine', () => {
     expect(classifyLine('$ echo ✓')).toBe('prompt');
   });
 
-  test('precedence: "✓" wins over "jerry_mejia" elsewhere in the line', () => {
-    expect(classifyLine('✓ jerry_mejia deployed')).toBe('success');
+  test('precedence: "✓" wins over "atlasfoo" elsewhere in the line', () => {
+    expect(classifyLine('✓ Jerry Mejia<atlasfoo> deployed')).toBe('success');
   });
 
-  test('precedence: "jerry_mejia" wins over a production/growing keyword', () => {
-    expect(classifyLine('jerry_mejia: production ready')).toBe('identity');
+  test('precedence: "atlasfoo" wins over a production/growing keyword', () => {
+    expect(classifyLine('Jerry Mejia<atlasfoo>: production ready')).toBe(
+      'identity',
+    );
   });
 });
 

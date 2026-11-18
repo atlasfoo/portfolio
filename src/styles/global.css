@@ -69,6 +69,8 @@
   --primary: #2f6bff;
   --primary2: #5b8cff;
   --nav-bg: rgba(6, 8, 13, 0.62);
+  --brand-foo: #9bb6ff;
+  --brand-chevron: #9bb6ff;
 }
 
 [data-theme="light"] {
@@ -88,6 +90,8 @@
   --primary: #2f6bff;
   --primary2: #2f6bff;
   --nav-bg: rgba(238, 241, 248, 0.72);
+  --brand-foo: #1b3fa8;
+  --brand-chevron: #1b3fa8;
 }
 
 /* Bilingual content toggle — dark is not involved here, [data-lang] lives on
@@ -121,6 +125,8 @@ html[data-lang="es"] [data-lang-content="es"] {
   --color-primary: var(--primary);
   --color-primary2: var(--primary2);
   --color-nav: var(--nav-bg);
+  --color-brand-foo: var(--brand-foo);
+  --color-brand-chevron: var(--brand-chevron);
 }
 
 @layer base {

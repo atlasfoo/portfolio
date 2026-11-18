@@ -14,6 +14,7 @@ import {
   SECTORS,
   STACK_GROUPS,
   TERMINAL_LINES,
+  TERMINAL_TITLE,
 } from './homepage';
 
 /**
@@ -176,5 +177,22 @@ describe('homepage content — cross-references', () => {
         `connection references unknown node id "${to}"`,
       ).toBe(true);
     }
+  });
+});
+
+describe('homepage content — terminal chrome and identity', () => {
+  test('terminal title is ~/atlasfoo — zsh', () => {
+    expect(TERMINAL_TITLE).toBe('~/atlasfoo — zsh');
+  });
+
+  test('whoami result line is Jerry Mejia<atlasfoo>', () => {
+    const whoamiIndex = TERMINAL_LINES.findIndex(
+      (line) => line.en === '$ whoami' && line.es === '$ whoami',
+    );
+    expect(whoamiIndex).toBeGreaterThanOrEqual(0);
+    const resultLine = TERMINAL_LINES[whoamiIndex + 1];
+    expect(resultLine?.tone).toBe('identity');
+    expect(resultLine?.es).toBe('Jerry Mejia<atlasfoo> · arquitecto_cloud');
+    expect(resultLine?.en).toBe('Jerry Mejia<atlasfoo> · cloud_architect');
   });
 });
