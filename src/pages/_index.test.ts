@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { expect, test } from 'vitest';
 import {
@@ -32,13 +33,15 @@ test('renders every homepage section in order', async () => {
   ];
 
   let previousIndex = -1;
+  // The wordmark is `atlas` + `foo`, so the brand string is not contiguous in the HTML.
+  const text = result.replace(/<[^>]+>/g, '');
   for (const [name, marker] of markers) {
     // Search forward from the last match, not from position 0 — some
     // markers collide (e.g. `NAV_LABELS.links[3].label.en` and
     // `SECTION_COPY.projects.title.en` are both literally "Projects"), so an
     // unanchored `indexOf` would keep finding the same earlier occurrence
     // (inside Nav's own link text) for every later section too.
-    const index = result.indexOf(marker, previousIndex + 1);
+    const index = text.indexOf(marker, previousIndex + 1);
     expect(
       index,
       `expected ${name} marker "${marker}" to appear after the previous section`,
@@ -69,4 +72,48 @@ test('insets every top-level section in the shared page container', async () => 
   // own use of the same class is covered by Nav.test.ts.
   const occurrences = result.split(PAGE_CONTAINER_CLASS).length - 1;
   expect(occurrences).toBeGreaterThanOrEqual(8);
+});
+
+test('nav and favicon SVG show the atlasfoo isologo and wordmark, not jerry.mejia or the square dot', async () => {
+  const container = await AstroContainer.create();
+  const result = await container.renderToString(Index);
+
+  const navMatch = result.match(/<nav[\s\S]*?<\/nav>/)?.[0] ?? '';
+
+  // Nav brand shows atlasfoo and not jerry.mejia. Tags split atlas and foo.
+  expect(navMatch.replace(/<[^>]+>/g, '')).toContain('atlasfoo');
+  expect(navMatch).not.toContain('jerry.mejia');
+
+  // Nav does not render the square dot
+  expect(navMatch).not.toMatch(/<span[^>]*rounded-\[3px\][^>]*bg-primary/);
+  expect(navMatch).not.toMatch(/<span[^>]*bg-primary[^>]*>\s*<\/span>/);
+
+  // Favicon is linked and its SVG file contains the atlasfoo mark
+  expect(result).toContain('href="/favicon.svg"');
+  const faviconSvg = readFileSync(
+    new URL('../../public/favicon.svg', import.meta.url),
+    'utf-8',
+  );
+  expect(faviconSvg).toContain('atlasfoo');
+});
+
+test('wordmark text atlasfoo remains visible on the page if the nav SVG is absent', async () => {
+  const container = await AstroContainer.create();
+  const result = await container.renderToString(Index);
+
+  const navMatch = result.match(/<nav[\s\S]*?<\/nav>/)?.[0] ?? '';
+  const withoutSvg = navMatch.replace(/<svg[\s\S]*?<\/svg>/gi, '');
+  expect(withoutSvg.replace(/<[^>]+>/g, '')).toContain('atlasfoo');
+});
+
+test('home head uses the design title and description', async () => {
+  const container = await AstroContainer.create();
+  const result = await container.renderToString(Index);
+
+  expect(result).toContain(
+    '<title>Jerry Mejía — Software Architect &amp; AWS Cloud Engineer</title>',
+  );
+  expect(result).toContain(
+    '<meta name="description" content="Portfolio of Jerry Mejía, Software Architect &amp; AWS Cloud Engineer. Distributed systems, observable, resilient, high-availability cloud architecture.">',
+  );
 });

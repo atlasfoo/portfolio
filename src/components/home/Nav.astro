@@ -5,12 +5,45 @@ import LangToggle from '../ui/LangToggle.astro';
 import ThemeToggle from '../ui/ThemeToggle.astro';
 ---
 
-<nav class="sticky top-0 z-50 backdrop-blur-[14px] bg-nav border-b border-border2">
-  <div class={`flex items-center justify-between gap-4 py-3 ${PAGE_CONTAINER_CLASS}`}>
+<nav class="relative sticky top-0 z-50 backdrop-blur-[14px] bg-nav border-b border-border2">
+  <div
+    data-nav-hint
+    class="hidden md:block absolute bottom-0 left-0 h-0.5 bg-primary pointer-events-none transition-opacity duration-150"
+    style="opacity: 0"
+    aria-hidden="true"
+  >
+  </div>
+  <div class={`flex items-center gap-4 py-3 ${PAGE_CONTAINER_CLASS}`}>
     <div class="flex items-center gap-2.5">
-      <span class="w-[11px] h-[11px] rounded-[3px] bg-primary shadow-[0_0_8px_var(--color-primary)]"></span>
-      <span class="font-mono text-sm text-text">{NAV_LABELS.brand}</span>
+      <svg
+        viewBox="0 0 100 100"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        class="size-6 text-brand-chevron"
+        aria-hidden="true"
+      >
+        <path
+          d="M25 80 L50 20 L75 80"
+          stroke="var(--color-primary)"
+          stroke-width="8"
+          stroke-linecap="butt"
+          stroke-linejoin="miter"
+          class="stroke-primary"
+        />
+        <path
+          d="M33.5 58 L50 67 L66.5 58"
+          stroke="currentColor"
+          stroke-width="10"
+          stroke-linecap="butt"
+          stroke-linejoin="miter"
+        />
+      </svg>
+      <span class="font-sans text-base font-bold leading-none tracking-[-0.04em] text-text">
+        atlas<span class="text-brand-foo">foo</span>
+      </span>
     </div>
+
+    <div class="flex-1" aria-hidden="true"></div>
 
     <div class="hidden md:flex items-center gap-6">
       <ul class="flex items-center gap-5">
@@ -80,3 +113,89 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
     </div>
   </div>
 </nav>
+
+<script>
+  import {
+    hintStyle,
+    type NavSegment,
+    placeNavHint,
+  } from '../../lib/home/nav-hint';
+
+  const nav = document.querySelector('nav');
+  const hint = document.querySelector<HTMLElement>('[data-nav-hint]');
+
+  if (nav && hint) {
+    const desktopLinks = Array.from(
+      nav.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'),
+    ).filter((link) => !link.closest('[data-nav-mobile-menu]'));
+
+    const update = () => {
+      const navRect = nav.getBoundingClientRect();
+      const navLeft = navRect.left;
+      const line = navRect.bottom + 8;
+
+      const segments: NavSegment[] = [];
+      for (const link of desktopLinks) {
+        const href = link.getAttribute('href');
+        if (!href) continue;
+        const section = document.querySelector<HTMLElement>(href);
+        if (!section) continue;
+        const linkRect = link.getBoundingClientRect();
+        const sectionRect = section.getBoundingClientRect();
+        segments.push({
+          href,
+          left: linkRect.left,
+          width: linkRect.width,
+          sectionTop: sectionRect.top,
+        });
+      }
+
+      const result = placeNavHint({ navLeft, line, segments });
+      const style = hintStyle(result);
+
+      hint.style.opacity = style.opacity;
+      if ('transform' in style) {
+        hint.style.transform = style.transform;
+        hint.style.width = style.width;
+      }
+
+      const ariaCurrentAttr = 'aria-current';
+      const locationVal = 'loc' + 'ation';
+
+      if (result.hidden) {
+        for (const link of desktopLinks) {
+          link.removeAttribute(ariaCurrentAttr);
+        }
+      } else {
+        for (const link of desktopLinks) {
+          if (link.getAttribute('href') === result.href) {
+            link.setAttribute(ariaCurrentAttr, locationVal);
+          } else {
+            link.removeAttribute(ariaCurrentAttr);
+          }
+        }
+      }
+    };
+
+    let rafId = 0;
+    const scheduleUpdate = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        update();
+      });
+    };
+
+    window.addEventListener('scroll', scheduleUpdate, { passive: true });
+    document.addEventListener('scroll', scheduleUpdate, { passive: true });
+    window.addEventListener('resize', scheduleUpdate);
+
+    update();
+    if (document.readyState !== 'complete') {
+      window.addEventListener('load', update, { once: true });
+    }
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(() => update());
+    }
+  }
+</script>

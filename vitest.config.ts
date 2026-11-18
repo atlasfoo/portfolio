@@ -16,4 +16,5 @@ export default getViteConfig({
     },
     setupFiles: ['./vitest.setup.ts'],
   },
-});
+  // Astro's ViteUserConfig type omits Vitest's test field; runtime still accepts it.
+} as Parameters<typeof getViteConfig>[0]);

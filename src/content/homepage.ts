@@ -51,7 +51,7 @@ export interface NavLabels {
 }
 
 export const NAV_LABELS: NavLabels = {
-  brand: 'jerry.mejia',
+  brand: 'atlasfoo',
   links: [
     {
       id: 'architecture',
@@ -753,14 +753,14 @@ export interface TerminalLine extends Bilingual {
 }
 
 /** Window title in the terminal chrome. */
-export const TERMINAL_TITLE = '~/jerry — zsh';
+export const TERMINAL_TITLE = '~/atlasfoo — zsh';
 
 export const TERMINAL_LINES: readonly TerminalLine[] = [
   { tone: 'prompt', es: '$ whoami', en: '$ whoami' },
   {
     tone: 'identity',
-    es: 'jerry_mejia · arquitecto_cloud',
-    en: 'jerry_mejia · cloud_architect',
+    es: 'Jerry Mejia<atlasfoo> · arquitecto_cloud',
+    en: 'Jerry Mejia<atlasfoo> · cloud_architect',
   },
   { tone: 'prompt', es: '$ cat perfil.json', en: '$ cat profile.json' },
   { tone: 'muted', es: '{', en: '{' },
