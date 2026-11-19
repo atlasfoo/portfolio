@@ -1,112 +1,41 @@
 ---
 import type { CertCopy } from '../../content/homepage';
-import { CERT_COPY, CONTACT_COPY } from '../../content/homepage';
+import { CERT_COPY, CERT_TAG, CONTACT_COPY } from '../../content/homepage';
 import { resolveCertImage } from '../../lib/home/cert-badge';
-import { formatCertDate } from '../../lib/home/cert-dates';
 import Button from '../ui/Button.astro';
+import CertSlider from './CertSlider';
 
 /**
  * `credential` lets the page (or a test) supply the remote credential link
- * without editing the shared copy; it defaults to `CERT_COPY.credential` and
- * the link is omitted when neither is set.
+ * without editing the shared copy. The link is omitted when it is not set.
  */
 interface Props {
   credential?: CertCopy['credential'];
 }
 
-const { credential = CERT_COPY.credential } = Astro.props;
+const { credential } = Astro.props;
 
 const emailLink = CONTACT_COPY.links.find((link) => link.id === 'email');
 const githubLink = CONTACT_COPY.links.find((link) => link.id === 'github');
 const linkedinLink = CONTACT_COPY.links.find((link) => link.id === 'linkedin');
 
-// Drop the badge at `public/certs/<file>` and point CERT_COPY.image at it.
-// Missing file → the generated gradient tile below is rendered instead.
-const certImage = resolveCertImage(CERT_COPY.image);
-
-const issued = formatCertDate(CERT_COPY.issued);
-const expires = formatCertDate(CERT_COPY.expires);
+const slides = CERT_COPY.map((cert) => ({
+  ...cert,
+  image: resolveCertImage(cert.image),
+}));
 
 const PILL_CLASS =
   'font-mono text-xs rounded-[10px] border border-border2 bg-panel px-4 py-3 hover:border-primary2';
 ---
 
 <div class="grid grid-cols-1 items-stretch gap-6 md:grid-cols-[0.8fr_1.2fr]">
-  <div class="flex flex-col gap-5 rounded-2xl border border-border2 bg-panel p-[30px]">
-    <p class="font-mono text-xs uppercase text-muted">
-      <span data-lang-content="en" set:html={CERT_COPY.tag.en} />
-      <span data-lang-content="es" set:html={CERT_COPY.tag.es} />
-    </p>
-    {
-      certImage ? (
-        <img
-          src={certImage}
-          alt={CERT_COPY.name}
-          width="74"
-          height="74"
-          class="size-[74px] rounded-[14px] object-contain"
-        />
-      ) : (
-        <div class="flex size-[74px] flex-col items-center justify-center rounded-[14px] bg-[linear-gradient(145deg,#2F6BFF,#1b3fa8)] shadow-[0_10px_30px_rgba(47,107,255,0.35)]">
-          <span class="font-serif text-2xl text-white">
-            {CERT_COPY.badge.top}
-          </span>
-          <span class="font-mono text-[8px] tracking-[0.1em] text-white/80">
-            {CERT_COPY.badge.bottom}
-          </span>
-        </div>
-      )
-    }
-    <div class="flex flex-col gap-2">
-      <div>
-        <p class="font-sans font-semibold text-[17px] text-text">{CERT_COPY.name}</p>
-        <p class="font-mono text-[11px] text-faint">{CERT_COPY.issuer}</p>
-      </div>
-
-      {
-        (issued || expires) && (
-          <dl class="flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] text-dim">
-            {issued && (
-              <div class="flex gap-1.5">
-                <dt>
-                  <span data-lang-content="en">{CERT_COPY.dates.issued.en}</span>
-                  <span data-lang-content="es">{CERT_COPY.dates.issued.es}</span>
-                </dt>
-                <dd class="text-faint">
-                  <time datetime={issued.dateTime}>{issued.label}</time>
-                </dd>
-              </div>
-            )}
-            {expires && (
-              <div class="flex gap-1.5">
-                <dt>
-                  <span data-lang-content="en">{CERT_COPY.dates.expires.en}</span>
-                  <span data-lang-content="es">{CERT_COPY.dates.expires.es}</span>
-                </dt>
-                <dd class="text-faint">
-                  <time datetime={expires.dateTime}>{expires.label}</time>
-                </dd>
-              </div>
-            )}
-          </dl>
-        )
-      }
-
-      {
-        credential && (
-          <a
-            href={credential.href}
-            target="_blank"
-            rel="noopener"
-            class="inline-flex w-fit items-center gap-1 font-mono text-[11px] text-primary2 hover:text-text"
-          >
-            <span data-lang-content="en">{credential.label.en}</span>
-            <span data-lang-content="es">{credential.label.es}</span>
-            <span aria-hidden="true">↗</span>
-          </a>
-        )
-      }
+  <div class="relative flex flex-col overflow-hidden rounded-2xl border border-border2 bg-panel p-[30px]">
+    <div
+      class="pointer-events-none absolute inset-0 bg-[radial-gradient(380px_190px_at_100%_0%,rgba(47,107,255,0.14),transparent_68%)]"
+      aria-hidden="true"
+    >
     </div>
+    <CertSlider client:visible certs={slides} credential={credential} tag={CERT_TAG} />
   </div>
 
   <div

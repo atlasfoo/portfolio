@@ -1,6 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
+
+vi.mock('astro:assets', () => ({
+  Font: () => null,
+}));
+
 import {
   CAPABILITIES,
   CERT_COPY,
@@ -28,7 +33,7 @@ test('renders every homepage section in order', async () => {
     ['Sectors', SECTORS[0].title.en],
     ['Projects', SECTION_COPY.projects.title.en],
     ['Methodology', METHODOLOGY_COPY.title.en],
-    ['CertContact', CERT_COPY.name],
+    ['CertContact', CERT_COPY[0].name],
     ['Footer', FOOTER_COPY.name],
   ];
 
@@ -115,5 +120,19 @@ test('home head uses the design title and description', async () => {
   );
   expect(result).toContain(
     '<meta name="description" content="Portfolio of Jerry Mejía, Software Architect &amp; AWS Cloud Engineer. Distributed systems, observable, resilient, high-availability cloud architecture.">',
+  );
+});
+
+test('homepage renders the certification slider with position indicator and both certifications', async () => {
+  const container = await AstroContainer.create();
+  const result = await container.renderToString(Index);
+
+  // Position indicator starting at 01 / 02
+  expect(result).toContain('01 / 02');
+
+  // Both certifications present
+  expect(result).toContain('AWS Certified Solutions Architect');
+  expect(result).toContain(
+    'Scrum Foundation Professional Certification (SFPC™)',
   );
 });

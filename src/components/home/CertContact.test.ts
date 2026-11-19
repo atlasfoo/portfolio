@@ -35,8 +35,8 @@ test('renders issue and expiry dates with machine-readable datetimes', async () 
   const container = await AstroContainer.create();
   const result = await container.renderToString(CertContact);
 
-  expect(result).toContain('<time datetime="2024-03-15">2024-03</time>');
-  expect(result).toContain('<time datetime="2027-03-15">2027-03</time>');
+  expect(result).toMatch(/<time dateTime="2024-03-15">2024-03<\/time>/);
+  expect(result).toMatch(/<time dateTime="2027-03-15">2027-03<\/time>/);
 
   // Bilingual labels, both rendered inline for CSS to toggle.
   expect(result).toContain('Emitido');
@@ -191,4 +191,44 @@ test('GitHub and LinkedIn links render as bordered mono pills', async () => {
   expect(githubAnchor).toMatch(/rounded-\[10px\]/);
   expect(githubAnchor).toMatch(/border-border2/);
   expect(githubAnchor).toMatch(/font-mono/);
+});
+
+test('renders the certification slider with position label 01 / 02', async () => {
+  const container = await AstroContainer.create();
+  const result = await container.renderToString(CertContact);
+
+  expect(result).toContain('01 / 02');
+});
+
+test('renders slider navigation controls (previous, next, and two dots)', async () => {
+  const container = await AstroContainer.create();
+  const result = await container.renderToString(CertContact);
+
+  expect(result).toMatch(/aria-label="[^"]*(?:previous|anterior)[^"]*"/i);
+  expect(result).toMatch(/aria-label="[^"]*(?:next|siguiente)[^"]*"/i);
+  expect(result).toContain('aria-label="Certification 1"');
+  expect(result).toContain('aria-label="Certification 2"');
+});
+
+test('renders both Slide 1 (AWS) and Slide 2 (Scrum Foundation) certification data', async () => {
+  const container = await AstroContainer.create();
+  const result = await container.renderToString(CertContact);
+
+  // Slide 1
+  expect(result).toContain('AWS Certified Solutions Architect');
+  expect(result).toContain('Amazon Web Services');
+
+  // Slide 2
+  expect(result).toContain(
+    'Scrum Foundation Professional Certification (SFPC™)',
+  );
+  expect(result).toContain('CertiProf');
+});
+
+test('Slide 2 renders monogram SF / SFPC and no badge image', async () => {
+  const container = await AstroContainer.create();
+  const result = await container.renderToString(CertContact);
+
+  expect(result).toContain('SF');
+  expect(result).toContain('SFPC');
 });
