@@ -3,7 +3,7 @@ type: index
 title: "Portfolio — memory index"
 description: "Entry point to this repository's constitutive memory."
 tags: [index]
-updated: "2026-09-25"
+updated: "2026-11-22"
 ---
 
 # Portfolio — Memory Index
@@ -52,6 +52,8 @@ story.
 One file per external surface.
 
 - [Imported design specs (design-import/)](references/design-specs.md) — Exported design-tool HTML mockups for the design system, homepage/portfolio, and blog, used as the visual source of truth during implementation.
+- [Open Design (Portfolio (PROJECT))](references/open-design.md) — Active local-first design workspace (`Portfolio (PROJECT)`) serving as the visual source of truth for the atlasfoo homepage refresh, superseding legacy `design-import/`.
+- [animejs (^4.5.0)](references/animejs.md) — Runtime animation library powering the `ArchitectureDiagram` island's entrance, drawable links, packet loop, and detail transition.
 - [Cloudflare (Workers, Workers Static Assets, DNS)](references/cloudflare.md) — Hosts the deployed site — a Cloudflare Worker with Workers Static Assets, bound to the site's hostname via a custom domain.
 - [Pulumi (infra/, @pulumi/cloudflare provider)](references/pulumi.md) — Infrastructure-as-code tool provisioning the durable Cloudflare resources (Worker container, custom domain) from infra/index.ts, with state in an AWS S3 DIY backend.
 - [AWS (S3 backend + IAM/OIDC for Pulumi state)](references/aws.md) — An S3 bucket holds Pulumi's DIY state backend; GitHub Actions authenticates to it via IAM OIDC, no static AWS keys. Used only for Pulumi's own state, not the site's runtime.

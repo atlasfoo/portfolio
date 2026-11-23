@@ -123,16 +123,14 @@ test('home head uses the design title and description', async () => {
   );
 });
 
-test('homepage renders the certification slider with position indicator and both certifications', async () => {
+test('homepage renders the certification slider with position indicator and configured certifications', async () => {
   const container = await AstroContainer.create();
   const result = await container.renderToString(Index);
 
-  // Position indicator starting at 01 / 02
-  expect(result).toContain('01 / 02');
+  const expectedPosition = `01 / ${String(CERT_COPY.length).padStart(2, '0')}`;
+  expect(result).toContain(expectedPosition);
 
-  // Both certifications present
-  expect(result).toContain('AWS Certified Solutions Architect');
-  expect(result).toContain(
-    'Scrum Foundation Professional Certification (SFPC™)',
-  );
+  for (const cert of CERT_COPY) {
+    expect(result).toContain(cert.name);
+  }
 });
