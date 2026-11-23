@@ -717,9 +717,9 @@ export const METHODOLOGY_COPY: MethodologyCopy = {
     es: 'Integro agentes de IA dentro de una metodología de desarrollo propia. No para reemplazar el criterio, sino para multiplicarlo: más velocidad, menos trabajo repetitivo y más tiempo para la arquitectura y el negocio.',
     en: 'I weave AI agents into my own development methodology. Not to replace judgment, but to multiply it: more speed, less busywork and more time for architecture and the business.',
   },
-  tools: ['Claude Code', 'Cursor', 'Antigravity'],
+  tools: ['OpenCode', 'Claude Code', 'Cursor', 'Antigravity'],
   terminal: {
-    command: '$ claude --role architect',
+    command: '$ opencode --role architect',
     comment: {
       es: '# desarrollo agéntico + criterio humano',
       en: '# agentic dev + human judgment',
@@ -848,14 +848,13 @@ export const CERT_COPY: readonly CertCopy[] = [
     // credential: { label: { es: 'Ver credencial', en: 'View credential' },
     //   href: 'https://www.credly.com/badges/<id>' },
   },
-  {
-    badge: { top: 'SF', bottom: 'SFPC' },
-    name: 'Scrum Foundation Professional Certification (SFPC™)',
-    issuer: 'CertiProf',
-    status: { es: 'Vigente', en: 'Active' },
-  },
+  // {
+  //   badge: { top: 'SF', bottom: 'SFPC' },
+  //   name: 'Scrum Foundation Professional Certification (SFPC™)',
+  //   issuer: 'CertiProf',
+  //   status: { es: 'Vigente', en: 'Active' },
+  // },
 ];
-
 /* ------------------------------------------------------------------ */
 /* Contact                                                             */
 /* ------------------------------------------------------------------ */

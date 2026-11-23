@@ -3,7 +3,7 @@ type: convention
 title: "Conventions"
 description: "TDD mode enabled with Vitest; Conventional Commits enforced via commitlint/lefthook; code style delegated to Biome."
 tags: [identity, convention, planning, style]
-updated: "2026-08-13"
+updated: "2026-11-22"
 ---
 
 # Conventions
@@ -16,6 +16,13 @@ updated: "2026-08-13"
   Future `conduct` plans structure implementation tasks red → green →
   refactor: a failing-test task precedes its implementation task within
   the same phase.
+
+- **Content-decoupled tests:** Page and section tests (`src/pages/_index.test.ts`,
+  `src/components/home/*.test.ts`) assert against exports from
+  `src/content/homepage.ts` rather than duplicating editable copy literals,
+  so editing site copy or item counts manually does not break tests.
+  Multi-item interactive behavior (e.g., `CertSlider`) is covered via
+  isolated test fixtures.
 
 - **Atomicity granularity:** use chore(wip) commits to store work in progress, then, squash into a full feat, fix, refactor commit.
 

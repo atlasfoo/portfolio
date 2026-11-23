@@ -226,26 +226,28 @@ export default function CertSlider({ certs, credential, tag }: Props) {
               />
             ))}
           </div>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              data-testid="cert-prev"
-              aria-label="Previous certification"
-              className="inline-flex size-9 items-center justify-center rounded-[9px] border border-border2 bg-panel2 text-body hover:border-primary hover:text-text"
-              onClick={() => show(index - 1, true)}
-            >
-              <span aria-hidden="true">←</span>
-            </button>
-            <button
-              type="button"
-              data-testid="cert-next"
-              aria-label="Next certification"
-              className="inline-flex size-9 items-center justify-center rounded-[9px] border border-border2 bg-panel2 text-body hover:border-primary hover:text-text"
-              onClick={() => show(index + 1, true)}
-            >
-              <span aria-hidden="true">→</span>
-            </button>
-          </div>
+          {count > 1 && (
+            <div className="flex gap-2">
+              <button
+                type="button"
+                data-testid="cert-prev"
+                aria-label="Previous certification"
+                className="inline-flex size-9 items-center justify-center rounded-[9px] border border-border2 bg-panel2 text-body hover:border-primary hover:text-text"
+                onClick={() => show(index - 1, true)}
+              >
+                <span aria-hidden="true">←</span>
+              </button>
+              <button
+                type="button"
+                data-testid="cert-next"
+                aria-label="Next certification"
+                className="inline-flex size-9 items-center justify-center rounded-[9px] border border-border2 bg-panel2 text-body hover:border-primary hover:text-text"
+                onClick={() => show(index + 1, true)}
+              >
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

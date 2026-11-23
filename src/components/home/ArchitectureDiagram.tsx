@@ -1,18 +1,25 @@
-import { useEffect, useState } from 'react';
+import { animate, createDrawable, stagger } from 'animejs';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   ARCHITECTURE_CONNECTIONS,
   ARCHITECTURE_LAYERS,
   ARCHITECTURE_NODES,
   type ArchitectureNode,
+  type ArchitectureNodeIcon,
   DEFAULT_ARCHITECTURE_NODE_ID,
   SECTION_COPY,
 } from '../../content/homepage';
 import {
-  lineState,
   resolveActiveNode,
+  type StageBox,
+  shouldAnimateStage,
+  stageLinkPath,
 } from '../../lib/home/architecture-diagram';
 import type { Lang } from '../../lib/lang';
 import { getCurrentLang, LANG_CHANGE_EVENT } from '../../lib/lang-client';
+
+const useIsoLayoutEffect =
+  typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 /** Node lookup for the line endpoints; the node list is module-constant. */
 const NODE_BY_ID = new Map(ARCHITECTURE_NODES.map((node) => [node.id, node]));
@@ -48,8 +55,6 @@ function useLang(): Lang {
 
   return lang;
 }
-
-import type { ArchitectureNodeIcon } from '../../content/homepage';
 
 /**
  * Renders SVG icons aligned with Font Awesome:
@@ -158,33 +163,41 @@ function DetailPanel({
   lang,
   testId,
   hintTestId,
+  placement = 'card',
 }: {
   activeNode: ArchitectureNode | undefined;
   lang: Lang;
   testId: string;
   hintTestId: string;
+  /** `below` is the full-width strip under the stage, not a side card. */
+  placement?: 'card' | 'below';
 }) {
+  const frame =
+    placement === 'below'
+      ? 'max-md:mt-3 max-md:rounded-[14px] max-md:border max-md:border-border2 max-md:bg-[var(--arch-node)] max-md:p-4 md:mt-4 md:border-0 md:border-t md:border-border md:bg-transparent md:px-2 md:pt-6 md:pb-2'
+      : 'flex flex-col rounded-2xl border border-primary-600/20 bg-panel2 bg-[linear-gradient(180deg,rgba(47,107,255,0.1),transparent_65%)] p-6 backdrop-blur-sm';
+
   return (
-    <div
-      aria-live="polite"
-      className="flex flex-col rounded-2xl border border-primary-600/20 bg-panel2 bg-[linear-gradient(180deg,rgba(47,107,255,0.1),transparent_65%)] p-6 backdrop-blur-sm"
-      data-testid={testId}
-    >
+    <div aria-live="polite" className={frame} data-testid={testId}>
       {SECTION_COPY.architecture.hint && (
         <p
-          className="mb-auto font-mono text-primary-600 text-xs tracking-wide"
+          className={`${placement === 'below' ? 'mb-4' : 'mb-auto'} flex items-center gap-2 font-mono text-primary-600 text-xs tracking-wide`}
           data-testid={hintTestId}
         >
+          <span
+            aria-hidden="true"
+            className="size-[7px] flex-none animate-pulse rounded-full bg-[var(--arch-live)] shadow-[0_0_10px_var(--arch-live)] motion-reduce:animate-none"
+          />
           {SECTION_COPY.architecture.hint[lang]}
         </p>
       )}
 
       {activeNode && (
-        <div>
+        <div data-arch-detail-body="">
           <div className="mb-2 flex items-center gap-2.5">
             <span
               aria-hidden="true"
-              className="flex size-7 flex-none items-center justify-center rounded-lg bg-primary-500/15 text-primary-400 p-1.5"
+              className="flex size-7 flex-none items-center justify-center rounded-lg bg-primary-500/15 p-1.5 text-primary-400"
             >
               <NodeIcon className="size-4" icon={activeNode.icon} />
             </span>
@@ -195,7 +208,9 @@ function DetailPanel({
           <p className="mb-4 font-mono text-faint text-xs">
             {activeNode.subtitle[lang]}
           </p>
-          <p className="text-[15px] text-muted leading-[1.62]">
+          <p
+            className={`text-[15px] text-muted leading-[1.62]${placement === 'below' ? ' max-w-[68ch]' : ''}`}
+          >
             {activeNode.description[lang]}
           </p>
         </div>
@@ -204,207 +219,414 @@ function DetailPanel({
   );
 }
 
+function stageFaces(stage: ParentNode): HTMLElement[] {
+  return [...stage.querySelectorAll<HTMLElement>('[data-arch-face]')];
+}
+
+function stagePaths(stage: ParentNode): SVGPathElement[] {
+  return [
+    ...stage.querySelectorAll<SVGPathElement>('[data-testid^="arch-line-"]'),
+  ];
+}
+
+function settleFaces(faces: readonly HTMLElement[]): void {
+  for (const face of faces) {
+    face.style.opacity = '';
+    face.style.transform = '';
+  }
+}
+
+/** Paint links fully drawn. `createDrawable` leaves a dash if motion is cut. */
+function settlePaths(paths: readonly SVGPathElement[]): void {
+  for (const path of paths) {
+    path.style.strokeDasharray = 'none';
+    path.style.strokeDashoffset = '0';
+  }
+}
+
+type Pausable = { pause: () => void };
+
 /**
- * Interactive architecture diagram: absolutely-positioned node buttons over an
- * SVG of connecting lines, plus the detail panel describing the active node.
+ * Traveling packet. Caller must already know motion is allowed — this
+ * function calls `animate`.
+ */
+function playPacket(
+  paths: readonly SVGPathElement[],
+  packet: SVGGElement,
+  isStopped: () => boolean,
+): Pausable {
+  let current: Pausable | null = null;
+  let index = 0;
+  const step = () => {
+    if (isStopped()) return;
+    const path = paths[index % paths.length];
+    const length = path?.getTotalLength?.() ?? 0;
+    if (!path || length < 1) {
+      packet.setAttribute('opacity', '0');
+      return;
+    }
+    const proxy = { t: 0 };
+    current = animate(proxy, {
+      t: 1,
+      duration: 1100,
+      ease: 'linear',
+      onUpdate: () => {
+        if (isStopped()) return;
+        const point = path.getPointAtLength(
+          Math.max(0, Math.min(1, proxy.t)) * length,
+        );
+        packet.setAttribute('transform', `translate(${point.x} ${point.y})`);
+        packet.setAttribute('opacity', '1');
+      },
+      onComplete: () => {
+        index += 1;
+        step();
+      },
+    });
+  };
+  try {
+    step();
+  } catch {
+    packet.setAttribute('opacity', '0');
+  }
+  return { pause: () => current?.pause() };
+}
+
+function measureStage(
+  stage: HTMLElement,
+  svg: SVGSVGElement,
+  activeId: string,
+): void {
+  const width = stage.clientWidth;
+  const height = stage.clientHeight;
+  if (width < 2 || height < 2) return;
+
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  const origin = svg.getBoundingClientRect();
+  const boxes = new Map<string, StageBox>();
+  for (const button of stage.querySelectorAll<HTMLElement>(
+    '[data-testid^="arch-node-"]',
+  )) {
+    const id = button.dataset.testid?.slice('arch-node-'.length);
+    if (!id) continue;
+    const rect = button.getBoundingClientRect();
+    boxes.set(id, {
+      x: rect.left + rect.width / 2 - origin.left,
+      y: rect.top + rect.height / 2 - origin.top,
+      w: rect.width,
+      h: rect.height,
+    });
+  }
+
+  const hub =
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(max-width: 767px)').matches;
+  const core = boxes.get('negocio');
+  for (const [from, to] of ARCHITECTURE_CONNECTIONS) {
+    const a = boxes.get(from);
+    const b = boxes.get(to);
+    const path = svg.querySelector<SVGPathElement>(
+      `[data-testid="arch-line-${from}-${to}"]`,
+    );
+    if (!(a && b && path)) continue;
+    path.setAttribute(
+      'd',
+      stageLinkPath(a, b, { hub, fromId: from, toId: to, core }),
+    );
+  }
+
+  const active = boxes.get(activeId);
+  if (!active) return;
+  stage.style.setProperty('--glow-x', `${(active.x / width) * 100}%`);
+  stage.style.setProperty('--glow-y', `${(active.y / height) * 100}%`);
+}
+
+const MOBILE_HUB_NODE_CLASS: Record<string, string> = {
+  negocio:
+    'max-md:left-1/2 max-md:top-1/2 max-md:z-[3] max-md:max-w-[36%] max-md:-translate-x-1/2 max-md:-translate-y-1/2 max-md:rounded-full',
+  u: 'max-md:left-1/2 max-md:top-0 max-md:max-w-[72%] max-md:-translate-x-1/2',
+  a: 'max-md:left-1/2 max-md:bottom-0 max-md:top-auto max-md:max-w-[72%] max-md:-translate-x-1/2',
+  dependencias: 'max-md:left-0 max-md:top-[18%]',
+  e: 'max-md:right-0 max-md:left-auto max-md:top-[18%]',
+  ap: 'max-md:left-0 max-md:bottom-[18%] max-md:top-auto',
+  i: 'max-md:right-0 max-md:left-auto max-md:bottom-[18%] max-md:top-auto',
+};
+
+/**
+ * Interactive architecture diagram. Uses Open Design's unified responsive stage
+ * (mesh, curved links, entrance, packet): square radial hub below `md` and
+ * 4-column board from `md` upward, with the detail below.
  *
- * Unlike the design mock's hover-only `div`s, every node is a real `<button>`:
- * reachable with Tab, activated by the browser's native Enter/Space handling,
- * and carrying a visible `focus-visible` ring. Pointer hover and focus preview
- * a node so mouse and keyboard users get the same affordance.
- *
- * Below `md:`, the absolutely-positioned canvas gives way to a plain stacked
- * list of node buttons (no SVG lines to fit into a narrow width) sharing the
- * same `activeId` state and `DetailPanel`.
+ * shortcut: glow sits on the active node, not the pointer — upgrade if the
+ * stage should track the cursor.
  */
 export default function ArchitectureDiagram() {
   const lang = useLang();
   const [activeId, setActiveId] = useState<string>(
     DEFAULT_ARCHITECTURE_NODE_ID,
   );
+  const [motionOn, setMotionOn] = useState(false);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const packetRef = useRef<SVGGElement>(null);
+  const desktopRef = useRef<HTMLDivElement>(null);
 
   const activeNode = resolveActiveNode(ARCHITECTURE_NODES, activeId);
-  const strokes = lineState(ARCHITECTURE_CONNECTIONS, activeId);
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return;
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const sync = () => setMotionOn(shouldAnimateStage(window.matchMedia));
+    sync();
+    query.addEventListener('change', sync);
+    return () => query.removeEventListener('change', sync);
+  }, []);
+
+  useIsoLayoutEffect(() => {
+    const stage = stageRef.current;
+    const svg = svgRef.current;
+    if (!(stage && svg)) return;
+    const draw = () => measureStage(stage, svg, activeId);
+    draw();
+    const observer =
+      typeof ResizeObserver !== 'undefined' ? new ResizeObserver(draw) : null;
+    observer?.observe(stage);
+    const mq =
+      typeof window.matchMedia === 'function'
+        ? window.matchMedia('(max-width: 767px)')
+        : null;
+    mq?.addEventListener('change', draw);
+    return () => {
+      observer?.disconnect();
+      mq?.removeEventListener('change', draw);
+    };
+  }, [activeId]);
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const faces = stageFaces(stage);
+    const paths = stagePaths(stage);
+    if (!motionOn) {
+      settleFaces(faces);
+      settlePaths(paths);
+      return;
+    }
+    if (faces.length === 0) return;
+    const running: Pausable[] = [];
+    try {
+      for (const face of faces) face.style.opacity = '0';
+      running.push(
+        animate(faces, {
+          opacity: [0, 1],
+          translateY: [12, 0],
+          duration: 320,
+          delay: stagger(40),
+          ease: 'out(2)',
+        }),
+      );
+      const drawable = paths.filter(
+        (path) => (path.getAttribute('d') ?? '').length > 0,
+      );
+      if (drawable.length > 0) {
+        running.push(
+          animate(createDrawable(drawable), {
+            draw: '0 1',
+            duration: 420,
+            delay: stagger(36),
+            ease: 'out(2)',
+          }),
+        );
+      }
+    } catch {
+      settleFaces(faces);
+      settlePaths(paths);
+    }
+    return () => {
+      for (const anim of running) anim.pause();
+    };
+  }, [motionOn]);
+
+  useEffect(() => {
+    const packet = packetRef.current;
+    const stage = stageRef.current;
+    if (!(packet && stage)) return;
+    if (!motionOn) {
+      packet.setAttribute('opacity', '0');
+      return;
+    }
+    const related = stagePaths(stage).filter(
+      (path) => path.dataset.from === activeId || path.dataset.to === activeId,
+    );
+    const paths = related.length > 0 ? related : stagePaths(stage);
+    let stopped = false;
+    const anim = playPacket(paths, packet, () => stopped);
+    return () => {
+      stopped = true;
+      anim.pause();
+      packet.setAttribute('opacity', '0');
+    };
+  }, [motionOn, activeId]);
+
+  useEffect(() => {
+    const root = desktopRef.current;
+    if (!(motionOn && root)) return;
+    const bodies = [
+      ...root.querySelectorAll<HTMLElement>('[data-arch-detail-body]'),
+    ];
+    // activeId is the trigger: the detail copy just changed.
+    if (bodies.length === 0 || !activeId) return;
+    let anim: Pausable | null = null;
+    try {
+      anim = animate(bodies, {
+        opacity: [0.72, 1],
+        translateY: [4, 0],
+        duration: 320,
+        ease: 'out(2)',
+      });
+    } catch {
+      for (const body of bodies) {
+        body.style.opacity = '1';
+        body.style.transform = '';
+      }
+    }
+    return () => anim?.pause();
+  }, [motionOn, activeId]);
 
   return (
-    <>
-      <div className="flex flex-col gap-4 md:hidden" data-testid="arch-mobile">
-        <div className="flex flex-col gap-2" data-testid="arch-mobile-list">
-          {ARCHITECTURE_NODES.map((node) => {
-            const isActive = node.id === activeId;
+    <div data-testid="arch-diagram" ref={desktopRef}>
+      <div
+        className="relative isolate overflow-visible rounded-2xl border border-border2 bg-panel p-4 md:p-6"
+        ref={stageRef}
+        style={{
+          backgroundImage:
+            'radial-gradient(420px 240px at var(--glow-x, 68%) var(--glow-y, 42%), var(--arch-glow), transparent 70%)',
+        }}
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 rounded-[inherit]"
+          style={{
+            backgroundImage:
+              'linear-gradient(var(--arch-mesh) 1px, transparent 1px), linear-gradient(90deg, var(--arch-mesh) 1px, transparent 1px)',
+            backgroundSize: '32px 32px',
+            maskImage: 'linear-gradient(black, transparent 92%)',
+          }}
+        />
 
+        <svg
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-0 h-full w-full overflow-visible"
+          ref={svgRef}
+        >
+          {ARCHITECTURE_CONNECTIONS.map(([from, to]) => {
+            const isConnActive = from === activeId || to === activeId;
+            if (!(NODE_BY_ID.has(from) && NODE_BY_ID.has(to))) return null;
             return (
-              <button
-                aria-pressed={isActive}
-                className={`flex items-center gap-2.5 rounded-[11px] border px-3.5 py-2.5 text-left transition-[border-color,background-color] duration-200 focus-visible:outline-2 focus-visible:outline-primary-500 focus-visible:outline-offset-2 ${
-                  isActive
-                    ? 'border-primary-600 bg-bg bg-[linear-gradient(180deg,rgba(47,107,255,0.18),var(--bg))]'
-                    : 'border-border2 bg-bg bg-[linear-gradient(180deg,rgba(255,255,255,0.05),var(--bg))]'
-                }`}
-                data-testid={`arch-node-mobile-${node.id}`}
-                key={node.id}
-                onClick={() => setActiveId(node.id)}
-                type="button"
-              >
-                <span
-                  aria-hidden="true"
-                  className="size-[7px] flex-none rounded-full"
-                  style={{
-                    background: node.dotColor,
-                    boxShadow: `0 0 8px ${node.dotColor}`,
-                  }}
-                />
-                <span
-                  aria-hidden="true"
-                  className="flex size-4 flex-none items-center justify-center text-primary-400"
-                >
-                  <NodeIcon className="size-3" icon={node.icon} />
-                </span>
-                <span className="flex flex-col text-left leading-[1.15]">
-                  <span className="font-sans font-semibold text-[12.5px] text-body">
-                    {node.label[lang]}
-                  </span>
-                  <span className="font-mono text-[9px] text-faint">
-                    {node.subtitle[lang]}
-                  </span>
-                </span>
-              </button>
+              <path
+                data-active={String(isConnActive)}
+                data-from={from}
+                data-testid={`arch-line-${from}-${to}`}
+                data-to={to}
+                fill="none"
+                key={`${from}-${to}`}
+                stroke={
+                  isConnActive ? 'var(--arch-link-on)' : 'var(--arch-link)'
+                }
+                strokeLinecap="round"
+                strokeWidth={isConnActive ? 2 : 1.5}
+                vectorEffect="non-scaling-stroke"
+              />
             );
           })}
-        </div>
+          <g className="text-primary2" opacity="0" ref={packetRef}>
+            <circle className="fill-current opacity-30" r="9" />
+            <circle className="fill-current" r="4" />
+          </g>
+        </svg>
 
-        <DetailPanel
-          activeNode={activeNode}
-          hintTestId="arch-hint-mobile"
-          lang={lang}
-          testId="arch-detail-mobile"
-        />
-      </div>
-
-      <div
-        className="hidden items-stretch gap-6 md:grid md:grid-cols-[1.6fr_1fr]"
-        data-testid="arch-desktop"
-      >
-        <div className="relative overflow-x-auto overflow-y-hidden rounded-2xl border border-border bg-panel backdrop-blur-sm [scrollbar-color:rgba(91,140,255,0.45)_rgba(255,255,255,0.02)] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary-500/40 hover:[&::-webkit-scrollbar-thumb]:bg-primary-500/60 [&::-webkit-scrollbar-track]:bg-panel2/50">
-          <div className="relative min-h-[520px] min-w-[1100px] w-full">
-            {ARCHITECTURE_LAYERS.map((layer) => (
-              <span
-                aria-hidden="true"
-                className="-translate-x-1/2 absolute top-[4%] z-10 font-mono text-2xs text-dim tracking-[0.1em]"
-                key={layer.id}
-                style={{ left: `${layer.x}%` }}
+        <section
+          aria-label={SECTION_COPY.architecture.tag[lang]}
+          className="relative z-10 block aspect-square min-h-[280px] md:grid md:aspect-auto md:min-h-[480px] md:grid-cols-4 md:gap-3"
+          data-testid="arch-board"
+        >
+          {ARCHITECTURE_LAYERS.map((layer) => (
+            <div
+              className="contents md:flex md:min-w-0 md:flex-col md:gap-3"
+              key={layer.id}
+            >
+              <p
+                className="hidden font-mono text-xs uppercase tracking-[0.08em] text-subtle md:block"
+                data-arch-layer-heading=""
               >
                 {layer.label}
-              </span>
-            ))}
-
-            <svg
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 z-0 h-full w-full overflow-visible"
-              preserveAspectRatio="none"
-              viewBox="0 0 100 100"
-            >
-              {ARCHITECTURE_CONNECTIONS.map(([from, to], index) => {
-                const a = NODE_BY_ID.get(from);
-                const b = NODE_BY_ID.get(to);
-                const stroke = strokes[index];
-                if (!(a && b && stroke)) {
-                  return null;
-                }
-
-                const isConnActive = from === activeId || to === activeId;
-                const midX = (a.x + b.x) / 2;
-                const midY = (a.y + b.y) / 2;
-                const angle =
-                  (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
-
-                return (
-                  <g key={`${from}-${to}`}>
-                    <line
-                      className="[transition:stroke_.25s_ease,stroke-width_.25s_ease]"
-                      data-active={String(isConnActive)}
-                      data-testid={`arch-line-${from}-${to}`}
-                      stroke={stroke.stroke}
-                      strokeDasharray="3 3.5"
-                      strokeWidth={stroke.width}
-                      vectorEffect="non-scaling-stroke"
-                      x1={a.x}
-                      x2={b.x}
-                      y1={a.y}
-                      y2={b.y}
-                    />
-                    <polygon
-                      className="[transition:fill_.25s_ease]"
-                      fill={stroke.stroke}
-                      points="-1.2,-1.2 1.5,0 -1.2,1.2"
-                      transform={`translate(${midX}, ${midY}) rotate(${angle})`}
-                    />
-                  </g>
-                );
-              })}
-            </svg>
-
-            {ARCHITECTURE_NODES.map((node) => {
-              const isActive = node.id === activeId;
-
-              return (
-                <button
-                  aria-pressed={isActive}
-                  className={`-translate-x-1/2 -translate-y-1/2 absolute z-20 flex items-center gap-2 rounded-[11px] border px-3 py-2 transition-[border-color,background-color,box-shadow] duration-200 focus-visible:outline-2 focus-visible:outline-primary-500 focus-visible:outline-offset-2 ${
-                    isActive
-                      ? 'border-primary-600 bg-bg bg-[linear-gradient(180deg,rgba(47,107,255,0.18),var(--bg))] shadow-[0_0_0_1px_rgba(47,107,255,0.55),0_10px_34px_rgba(47,107,255,0.4)]'
-                      : 'border-border2 bg-bg bg-[linear-gradient(180deg,rgba(255,255,255,0.05),var(--bg))] shadow-[0_4px_18px_rgba(0,0,0,0.4)] hover:border-primary-500/60 hover:bg-[linear-gradient(180deg,rgba(47,107,255,0.08),var(--bg))]'
-                  }`}
-                  data-testid={`arch-node-${node.id}`}
-                  key={node.id}
-                  onClick={() => setActiveId(node.id)}
-                  onFocus={() => setActiveId(node.id)}
-                  onMouseEnter={() => setActiveId(node.id)}
-                  style={{ left: `${node.x}%`, top: `${node.y}%` }}
-                  type="button"
-                >
-                  <span
-                    aria-hidden="true"
-                    className="size-[7px] flex-none rounded-full"
-                    style={{
-                      background: node.dotColor,
-                      boxShadow: `0 0 8px ${node.dotColor}`,
-                    }}
-                  />
-                  <span
-                    aria-hidden="true"
-                    className="flex size-4 flex-none items-center justify-center text-primary-400"
-                  >
-                    <NodeIcon className="size-3" icon={node.icon} />
-                  </span>
-                  <span className="flex flex-col text-left leading-[1.15]">
-                    <span className="whitespace-nowrap font-sans font-semibold text-[12.5px] text-body">
-                      {node.label[lang]}
-                    </span>
-                    <span className="whitespace-nowrap font-mono text-[9px] text-faint">
-                      {node.subtitle[lang]}
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
-
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute bottom-3 right-4 flex items-center gap-1.5 rounded-full border border-primary-500/20 bg-panel2/90 px-2.5 py-1 font-mono text-[10px] text-primary-400/80 shadow-sm backdrop-blur-md"
-            >
-              <span>↔ Scroll</span>
+              </p>
+              <div className="contents md:flex md:flex-1 md:flex-col md:items-center md:justify-center md:gap-3">
+                {ARCHITECTURE_NODES.filter(
+                  (node) => node.layer === layer.id,
+                ).map((node) => {
+                  const isActive = node.id === activeId;
+                  const mobilePos = MOBILE_HUB_NODE_CLASS[node.id] ?? '';
+                  return (
+                    <button
+                      aria-pressed={isActive}
+                      className={`flex w-max max-w-full items-center rounded-xl border text-left transition-[border-color,background-color,box-shadow] duration-200 focus-visible:outline-2 focus-visible:outline-primary-500 focus-visible:outline-offset-2 motion-reduce:transition-none max-md:absolute max-md:min-h-[44px] max-md:max-w-[calc(50%-56px)] ${mobilePos} ${
+                        isActive
+                          ? 'border-primary-600 bg-[var(--arch-node-active)] shadow-[0_0_0_1px_var(--arch-active-ring),0_8px_20px_var(--arch-active-shadow)]'
+                          : 'border-border2 bg-[var(--arch-node)] hover:border-[var(--arch-border-hover)]'
+                      }`}
+                      data-testid={`arch-node-${node.id}`}
+                      key={node.id}
+                      onClick={() => setActiveId(node.id)}
+                      onFocus={() => setActiveId(node.id)}
+                      onMouseEnter={() => setActiveId(node.id)}
+                      type="button"
+                    >
+                      <span
+                        className="flex min-w-0 items-center gap-1.5 px-2.5 py-2 md:gap-2.5 md:px-3.5 md:py-3"
+                        data-arch-face=""
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={`flex size-4 flex-none items-center justify-center md:size-[18px] ${
+                            isActive
+                              ? 'text-[var(--arch-icon-active)]'
+                              : 'text-[var(--arch-icon)]'
+                          }`}
+                        >
+                          <NodeIcon
+                            className="size-4 md:size-[18px]"
+                            icon={node.icon}
+                          />
+                        </span>
+                        <span className="flex min-w-0 flex-col text-left leading-[1.2]">
+                          <span className="truncate font-sans font-semibold text-[13px] text-text">
+                            {node.label[lang]}
+                          </span>
+                          <span
+                            className="hidden truncate font-mono text-[11px] text-muted md:block"
+                            data-arch-node-sub=""
+                          >
+                            {node.subtitle[lang]}
+                          </span>
+                        </span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        </div>
-
-        <DetailPanel
-          activeNode={activeNode}
-          hintTestId="arch-hint"
-          lang={lang}
-          testId="arch-detail"
-        />
+          ))}
+        </section>
       </div>
-    </>
+
+      <DetailPanel
+        activeNode={activeNode}
+        hintTestId="arch-hint"
+        lang={lang}
+        placement="below"
+        testId="arch-detail"
+      />
+    </div>
   );
 }

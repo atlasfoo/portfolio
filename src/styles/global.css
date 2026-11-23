@@ -45,10 +45,24 @@
   --shadow-card: 0 30px 80px rgba(0, 0, 0, 0.55);
   --shadow-success: 0 0 0 5px rgba(61, 220, 151, 0.18);
 
+  /* Hard blink for the methodology caret. steps(1), not a fade. */
+  --animate-blink: blink 1.05s steps(1) infinite;
+
   /* Font families — variables emitted by Astro's Fonts API (astro.config.mjs) */
   --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
   --font-sans: var(--font-space-grotesk), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  @keyframes blink {
+    0%,
+    48% {
+      opacity: 1;
+    }
+    49%,
+    100% {
+      opacity: 0;
+    }
+  }
 }
 
 /* Semantic theme tokens — dark is the default theme */
@@ -71,6 +85,19 @@
   --nav-bg: rgba(6, 8, 13, 0.62);
   --brand-foo: #9bb6ff;
   --brand-chevron: #9bb6ff;
+  /* Architecture stage — theme-aware, not a dark panel fill */
+  --arch-link: rgba(138, 150, 180, 0.38);
+  --arch-link-on: rgba(91, 140, 255, 0.95);
+  --arch-mesh: rgba(120, 140, 200, 0.06);
+  --arch-glow: rgba(47, 107, 255, 0.2);
+  --arch-live: var(--color-success-400);
+  --arch-node: #10141c;
+  --arch-node-active: #172033;
+  --arch-active-ring: rgba(47, 107, 255, 0.55);
+  --arch-active-shadow: rgba(47, 107, 255, 0.18);
+  --arch-border-hover: rgba(47, 107, 255, 0.45);
+  --arch-icon: #5b8cff;
+  --arch-icon-active: #f3f5fa;
 }
 
 [data-theme="light"] {
@@ -92,6 +119,18 @@
   --nav-bg: rgba(238, 241, 248, 0.72);
   --brand-foo: #1b3fa8;
   --brand-chevron: #1b3fa8;
+  --arch-link: rgba(27, 63, 168, 0.28);
+  --arch-link-on: rgba(47, 107, 255, 0.85);
+  --arch-mesh: rgba(20, 34, 80, 0.05);
+  --arch-glow: rgba(47, 107, 255, 0.14);
+  --arch-live: #0e8f62;
+  --arch-node: #f4f7fc;
+  --arch-node-active: #e4ecff;
+  --arch-active-ring: rgba(47, 107, 255, 0.45);
+  --arch-active-shadow: rgba(47, 107, 255, 0.18);
+  --arch-border-hover: rgba(47, 107, 255, 0.55);
+  --arch-icon: #1b3fa8;
+  --arch-icon-active: #1b3fa8;
 }
 
 /* Bilingual content toggle — dark is not involved here, [data-lang] lives on

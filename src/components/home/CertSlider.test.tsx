@@ -266,6 +266,9 @@ describe('CertSlider — Sad path (HOME-013)', () => {
     if (pos) {
       expect(pos.textContent).not.toContain('01 / 02');
     }
+    // Prev/next arrow buttons should not render when there is only 1 cert
+    expect(screen.queryByTestId('cert-prev')).toBeNull();
+    expect(screen.queryByTestId('cert-next')).toBeNull();
   });
 
   test('does not trap focus when tabbing through slider controls', async () => {
